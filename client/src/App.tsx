@@ -327,7 +327,10 @@ function App() {
 
     try {
       const encoded = await Promise.all(Array.from(files).map((file) => toBase64(file)));
-      const existing = productForm.images.split(',').map((item) => item.trim()).filter(Boolean);
+      const existing = productForm.images
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean);
       setProductForm((prev) => ({ ...prev, images: [...existing, ...encoded].join(', ') }));
       setProductNotice(`${encoded.length} image(s) prepared for upload.`);
     } catch {
@@ -523,33 +526,54 @@ function App() {
           <div className="panel-header">
             <h2>Inventory Management</h2>
             <div className="toolbar-actions">
-              <label className="btn btn-light file-label">Bulk Import CSV<input type="file" accept=".csv,text/csv" onChange={handleBulkImport} /></label>
-              {editingProductId && <button className="btn btn-light" type="button" onClick={resetProductForm}>Cancel Edit</button>}
+              <label className="btn btn-light file-label">
+                Bulk Import CSV
+                <input type="file" accept=".csv,text/csv" onChange={handleBulkImport} />
+              </label>
+              {editingProductId && (
+                <button className="btn btn-light" type="button" onClick={resetProductForm}>Cancel Edit</button>
+              )}
             </div>
           </div>
 
           <form className="filter-row" onSubmit={applyFilters}>
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name/sku/barcode/description" />
-            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}><option value="all">All statuses</option><option value="active">Active</option><option value="inactive">Inactive</option></select>
-            <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}><option value="all">All categories</option>{categories.map((category) => <option key={category._id} value={category._id}>{category.name}</option>)}</select>
+            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}>
+              <option value="all">All statuses</option><option value="active">Active</option><option value="inactive">Inactive</option>
+            </select>
+            <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+              <option value="all">All categories</option>
+              {categories.map((category) => <option key={category._id} value={category._id}>{category.name}</option>)}
+            </select>
             <button className="btn btn-primary" type="submit">Apply</button>
           </form>
 
           <form className="form-grid" onSubmit={handleProductSubmit}>
             <label>Name *<input value={productForm.name} onChange={(e) => setProductForm((p) => ({ ...p, name: e.target.value }))} /></label>
-            <label>SKU (optional, auto-generated)<input value={productForm.sku} onChange={(e) => setProductForm((p) => ({ ...p, sku: e.target.value }))} /></label>
+            <label>SKU (optional, auto-generated if empty)<input value={productForm.sku} onChange={(e) => setProductForm((p) => ({ ...p, sku: e.target.value }))} /></label>
             <label>Barcode<input value={productForm.barcode} onChange={(e) => setProductForm((p) => ({ ...p, barcode: e.target.value }))} /></label>
-            <label>Category *<select value={productForm.category} onChange={(e) => setProductForm((p) => ({ ...p, category: e.target.value }))}><option value="">Select category</option>{categories.map((category) => <option key={category._id} value={category._id}>{category.name}</option>)}</select></label>
+            <label>Category *
+              <select value={productForm.category} onChange={(e) => setProductForm((p) => ({ ...p, category: e.target.value }))}>
+                <option value="">Select category</option>
+                {categories.map((category) => <option key={category._id} value={category._id}>{category.name}</option>)}
+              </select>
+            </label>
             <label>Price *<input type="number" min="0" step="0.01" value={productForm.price} onChange={(e) => setProductForm((p) => ({ ...p, price: e.target.value }))} /></label>
             <label>Cost Price *<input type="number" min="0" step="0.01" value={productForm.costPrice} onChange={(e) => setProductForm((p) => ({ ...p, costPrice: e.target.value }))} /></label>
             <label>Stock<input type="number" min="0" value={productForm.stock} onChange={(e) => setProductForm((p) => ({ ...p, stock: e.target.value }))} /></label>
             <label>Low Stock Threshold<input type="number" min="0" value={productForm.lowStockThreshold} onChange={(e) => setProductForm((p) => ({ ...p, lowStockThreshold: e.target.value }))} /></label>
             <label>Expiry Date<input type="date" value={productForm.expiryDate} onChange={(e) => setProductForm((p) => ({ ...p, expiryDate: e.target.value }))} /></label>
-            <label>Status<select value={productForm.status} onChange={(e) => setProductForm((p) => ({ ...p, status: e.target.value as 'active' | 'inactive' }))}><option value="active">active</option><option value="inactive">inactive</option></select></label>
+            <label>Status
+              <select value={productForm.status} onChange={(e) => setProductForm((p) => ({ ...p, status: e.target.value as 'active' | 'inactive' }))}>
+                <option value="active">active</option><option value="inactive">inactive</option>
+              </select>
+            </label>
             <label>Created By (User ID) *<input value={productForm.createdBy} onChange={(e) => setProductForm((p) => ({ ...p, createdBy: e.target.value }))} /></label>
             <label className="full-width">Description<textarea value={productForm.description} onChange={(e) => setProductForm((p) => ({ ...p, description: e.target.value }))} /></label>
             <label className="full-width">Image URLs (comma separated)<input value={productForm.images} onChange={(e) => setProductForm((p) => ({ ...p, images: e.target.value }))} /></label>
-            <label className="full-width">Upload Images<input type="file" accept="image/*" multiple onChange={handleImageUpload} /></label>
+            <label className="full-width">Upload Images
+              <input type="file" accept="image/*" multiple onChange={handleImageUpload} />
+            </label>
             <div className="full-width form-actions"><button className="btn btn-primary" type="submit">{editingProductId ? 'Update Product' : 'Create Product'}</button></div>
           </form>
 
@@ -558,19 +582,30 @@ function App() {
 
           <h3>All Products ({products.length})</h3>
           <table>
-            <thead><tr><th>Name</th><th>SKU</th><th>Barcode</th><th>Category</th><th>Status</th><th>Price</th><th>Cost</th><th>Stock</th><th>Threshold</th><th>Expiry</th><th>Actions</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Name</th><th>SKU</th><th>Barcode</th><th>Category</th><th>Status</th><th>Price</th><th>Cost</th><th>Stock</th><th>Threshold</th><th>Expiry</th><th>Actions</th>
+              </tr>
+            </thead>
             <tbody>
               {products.map((p) => (
                 <tr key={p._id}>
-                  <td>{p.name}</td><td>{p.sku || '-'}</td><td>{p.barcode || '-'}</td><td>{categoryLabel(p.category)}</td><td>{p.status}</td><td>₹{p.price}</td><td>₹{p.costPrice}</td>
-                  <td className={p.stock <= p.lowStockThreshold ? 'warning' : ''}>{p.stock}</td><td>{p.lowStockThreshold}</td><td>{p.expiryDate ? new Date(p.expiryDate).toLocaleDateString() : '-'}</td>
+                  <td>{p.name}</td><td>{p.sku || '-'}</td><td>{p.barcode || '-'}</td><td>{categoryLabel(p.category)}</td><td>{p.status}</td>
+                  <td>₹{p.price}</td><td>₹{p.costPrice}</td>
+                  <td className={p.stock <= p.lowStockThreshold ? 'warning' : ''}>{p.stock}</td>
+                  <td>{p.lowStockThreshold}</td>
+                  <td>{p.expiryDate ? new Date(p.expiryDate).toLocaleDateString() : '-'}</td>
                   <td><div className="action-row"><button className="btn btn-light" type="button" onClick={() => startEditProduct(p)}>Edit</button><button className="btn btn-danger" type="button" onClick={() => handleDeleteProduct(p)}>Delete</button></div></td>
                 </tr>
               ))}
             </tbody>
           </table>
 
-          <div className="pagination-row"><button className="btn btn-light" type="button" disabled={page <= 1} onClick={() => loadData(page - 1, search, statusFilter, categoryFilter)}>Previous</button><span>Page {page} of {totalPages}</span><button className="btn btn-light" type="button" disabled={page >= totalPages} onClick={() => loadData(page + 1, search, statusFilter, categoryFilter)}>Next</button></div>
+          <div className="pagination-row">
+            <button className="btn btn-light" type="button" disabled={page <= 1} onClick={() => loadData(page - 1, search, statusFilter, categoryFilter)}>Previous</button>
+            <span>Page {page} of {totalPages}</span>
+            <button className="btn btn-light" type="button" disabled={page >= totalPages} onClick={() => loadData(page + 1, search, statusFilter, categoryFilter)}>Next</button>
+          </div>
         </section>
       )}
 
@@ -580,8 +615,17 @@ function App() {
           <form className="form-grid" onSubmit={handleCategorySubmit}>
             <label>Name *<input value={categoryForm.name} onChange={(e) => setCategoryForm((p) => ({ ...p, name: e.target.value }))} /></label>
             <label>Slug *<input value={categoryForm.slug} onChange={(e) => setCategoryForm((p) => ({ ...p, slug: e.target.value }))} placeholder="e.g. electronics" /></label>
-            <label>Parent Category (optional)<select value={categoryForm.parent} onChange={(e) => setCategoryForm((p) => ({ ...p, parent: e.target.value }))}><option value="">None (root category)</option>{parentCategories.map((category) => <option key={category._id} value={category._id}>{category.name}</option>)}</select></label>
-            <label>Status<select value={categoryForm.status} onChange={(e) => setCategoryForm((p) => ({ ...p, status: e.target.value as 'active' | 'inactive' }))}><option value="active">active</option><option value="inactive">inactive</option></select></label>
+            <label>Parent Category (optional)
+              <select value={categoryForm.parent} onChange={(e) => setCategoryForm((p) => ({ ...p, parent: e.target.value }))}>
+                <option value="">None (root category)</option>
+                {parentCategories.map((category) => <option key={category._id} value={category._id}>{category.name}</option>)}
+              </select>
+            </label>
+            <label>Status
+              <select value={categoryForm.status} onChange={(e) => setCategoryForm((p) => ({ ...p, status: e.target.value as 'active' | 'inactive' }))}>
+                <option value="active">active</option><option value="inactive">inactive</option>
+              </select>
+            </label>
             <label>Created By (User ID) *<input value={categoryForm.createdBy} onChange={(e) => setCategoryForm((p) => ({ ...p, createdBy: e.target.value }))} /></label>
             <label className="full-width">Description<textarea value={categoryForm.description} onChange={(e) => setCategoryForm((p) => ({ ...p, description: e.target.value }))} /></label>
             <div className="full-width form-actions"><button className="btn btn-primary" type="submit">Create Category</button></div>
@@ -676,7 +720,14 @@ function App() {
       {tab === 'payments' && (
         <section className="panel">
           <h2>Payment Tracking</h2>
-          <table><thead><tr><th>Order</th><th>Customer</th><th>Amount</th><th>Method</th><th>Status</th></tr></thead><tbody>{payments.map((p) => (<tr key={p._id}><td>{p.orderId || '-'}</td><td>{p.customerName || '-'}</td><td>₹{p.amount}</td><td>{p.paymentMethod}</td><td>{p.paymentStatus}</td></tr>))}</tbody></table>
+          <table>
+            <thead><tr><th>Order</th><th>Customer</th><th>Amount</th><th>Method</th><th>Status</th></tr></thead>
+            <tbody>
+              {payments.map((p) => (
+                <tr key={p._id}><td>{p.orderId || '-'}</td><td>{p.customerName || '-'}</td><td>₹{p.amount}</td><td>{p.paymentMethod}</td><td>{p.paymentStatus}</td></tr>
+              ))}
+            </tbody>
+          </table>
           <p className="muted">Pending value: ₹{dashboard.pendingPaymentsAmount.toFixed(2)}</p>
         </section>
       )}
@@ -684,7 +735,14 @@ function App() {
       {tab === 'deliveries' && (
         <section className="panel">
           <h2>Delivery Tracking</h2>
-          <table><thead><tr><th>Order</th><th>Customer</th><th>Address</th><th>Status</th></tr></thead><tbody>{deliveries.map((d) => (<tr key={d._id}><td>{d.orderId || '-'}</td><td>{d.customerName}</td><td>{d.customerAddress}</td><td>{d.deliveryStatus}</td></tr>))}</tbody></table>
+          <table>
+            <thead><tr><th>Order</th><th>Customer</th><th>Address</th><th>Status</th></tr></thead>
+            <tbody>
+              {deliveries.map((d) => (
+                <tr key={d._id}><td>{d.orderId || '-'}</td><td>{d.customerName}</td><td>{d.customerAddress}</td><td>{d.deliveryStatus}</td></tr>
+              ))}
+            </tbody>
+          </table>
         </section>
       )}
     </div>
