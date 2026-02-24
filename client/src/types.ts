@@ -109,3 +109,30 @@ export interface Dashboard {
   pendingDeliveries: number;
   totalRevenue: number;
 }
+
+
+export interface PurchaseItem {
+  productId: { _id: string; name: string; sku: string } | string;
+  quantity: number;
+  costPrice: number;
+}
+
+export interface Purchase {
+  _id: string;
+  supplierName: string;
+  items: PurchaseItem[];
+  totalAmount: number;
+  purchaseDate: string;
+  createdBy: string;
+  createdAt?: string;
+}
+
+export interface PurchaseListResponse {
+  data: Purchase[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
