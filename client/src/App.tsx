@@ -3,16 +3,20 @@ import DashboardPage from './pages/DashboardPage';
 import SalesHistoryPage from './pages/SalesHistoryPage';
 import SalesPage from './pages/SalesPage';
 import PurchasesPage from './pages/PurchasesPage';
+import ExpensesPage from './pages/ExpensesPage';
+import ProductManagementPage from './pages/ProductManagementPage';
 import LoginPage from './pages/LoginPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import './styles.css';
 
-type AppRoute = '/dashboard' | '/sales' | '/sales/history' | '/purchases' | '/login';
+type AppRoute = '/dashboard' | '/sales' | '/sales/history' | '/products' | '/purchases' | '/expenses' | '/login';
 
 const normalizePath = (path: string): AppRoute => {
   if (path === '/sales') return '/sales';
   if (path === '/sales/history') return '/sales/history';
+  if (path === '/products') return '/products';
   if (path === '/purchases') return '/purchases';
+  if (path === '/expenses') return '/expenses';
   if (path === '/login') return '/login';
   return '/dashboard';
 };
@@ -65,10 +69,18 @@ function AppShell() {
           Sales History
         </button>
         {user.role === 'owner' && (
+          <button type="button" className={`btn ${route === '/products' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/products')}>
+            Products
+          </button>
+        )}
+        {user.role === 'owner' && (
           <button type="button" className={`btn ${route === '/purchases' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/purchases')}>
             Purchases
           </button>
         )}
+        <button type="button" className={`btn ${route === '/expenses' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/expenses')}>
+          Expenses
+        </button>
         <span className="nav-spacer" />
         <span className="muted">{user.name} ({user.role})</span>
         <button type="button" className="btn btn-light" onClick={logout}>Logout</button>
@@ -77,7 +89,9 @@ function AppShell() {
       {route === '/dashboard' && <DashboardPage />}
       {route === '/sales' && <SalesPage />}
       {route === '/sales/history' && <SalesHistoryPage />}
+      {route === '/products' && user.role === 'owner' && <ProductManagementPage />}
       {route === '/purchases' && user.role === 'owner' && <PurchasesPage />}
+      {route === '/expenses' && <ExpensesPage />}
     </>
   );
 }

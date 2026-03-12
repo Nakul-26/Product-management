@@ -15,6 +15,7 @@ import { createSale, getSales, getSaleById, getDailySalesSummary, getSaleInvoice
 import { getDashboard } from '../controllers/dashboardController';
 import { createPurchase, getPurchases } from '../controllers/purchasesController';
 import { getProfitSummary } from '../controllers/analyticsController';
+import { createExpense, getExpenses } from '../controllers/expensesController';
 import authRouter from './authRoutes';
 import { authorizeRoles, requireAuth } from '../middleware/authMiddleware';
 
@@ -59,5 +60,8 @@ router.get('/analytics/profit', asyncHandler(authorizeRoles('owner', 'staff')), 
 
 router.post('/purchases', asyncHandler(authorizeRoles('owner')), asyncHandler(createPurchase));
 router.get('/purchases', asyncHandler(authorizeRoles('owner', 'staff')), asyncHandler(getPurchases));
+
+router.post('/expenses', asyncHandler(authorizeRoles('owner', 'staff')), asyncHandler(createExpense));
+router.get('/expenses', asyncHandler(authorizeRoles('owner', 'staff')), asyncHandler(getExpenses));
 
 export default router;

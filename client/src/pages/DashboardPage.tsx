@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import api from '../api/api';
-import { DailySalesSummary, Dashboard } from '../types';
+import { DailySalesSummary, Dashboard, ProfitSummary } from '../types';
 
 type RevenuePoint = {
   day: string;
@@ -9,8 +9,20 @@ type RevenuePoint = {
 
 const dayName = (date: Date) => date.toLocaleDateString(undefined, { weekday: 'short' });
 
+const defaultProfitSummary: ProfitSummary = {
+  range: { from: null, to: null },
+  totalRevenue: 0,
+  totalCOGS: 0,
+  totalProfit: 0,
+  totalExpenses: 0,
+  netProfit: 0,
+  avgMargin: 0,
+  topProfitableProducts: []
+};
+
 function DashboardPage() {
   const [data, setData] = useState<Dashboard | null>(null);
+  const [profit, setProfit] = useState<ProfitSummary>(defaultProfitSummary);
   const [chartData, setChartData] = useState<RevenuePoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -20,7 +32,10 @@ function DashboardPage() {
       setLoading(true);
       setError('');
       try {
-        const dashboardRes = await api.get<Dashboard>('/dashboard');
+        const [dashboardRes, profitRes] = await Promise.all([
+          api.get<Dashboard>('/dashboard'),
+          api.get<ProfitSummary>('/analytics/profit')
+        ]);
 
         const days = Array.from({ length: 7 }).map((_, index) => {
           const date = new Date();
@@ -47,6 +62,7 @@ function DashboardPage() {
         );
 
         setData(dashboardRes.data);
+        setProfit(profitRes.data);
         setChartData(summaries);
       } catch {
         setError('Failed to load dashboard');
@@ -72,11 +88,6 @@ function DashboardPage() {
           <>
             <div className="dashboard-cards">
               <div className="card">
-                <h3>Today's Revenue</h3>
-                <p>₹ {data.totalRevenue.toFixed(2)}</p>
-              </div>
-
-              <div className="card">
                 <h3>Total Products</h3>
                 <p>{data.products}</p>
               </div>
@@ -89,6 +100,39 @@ function DashboardPage() {
               <div className="card">
                 <h3>Pending Payments</h3>
                 <p>₹ {data.pendingPaymentsAmount.toFixed(2)}</p>
+              </div>
+
+              <div className="card">
+                <h3>Pending Deliveries</h3>
+                <p>{data.pendingDeliveries}</p>
+              </div>
+            </div>
+
+            <h3 className="section-title">Financial Overview</h3>
+            <div className="dashboard-cards financial-cards">
+              <div className="card">
+                <h3>Gross Revenue</h3>
+                <p>₹ {profit.totalRevenue.toFixed(2)}</p>
+              </div>
+              <div className="card">
+                <h3>COGS</h3>
+                <p>₹ {profit.totalCOGS.toFixed(2)}</p>
+              </div>
+              <div className="card">
+                <h3>Gross Profit</h3>
+                <p>₹ {profit.totalProfit.toFixed(2)}</p>
+              </div>
+              <div className="card">
+                <h3>Expenses</h3>
+                <p>₹ {profit.totalExpenses.toFixed(2)}</p>
+              </div>
+              <div className="card">
+                <h3>Net Profit</h3>
+                <p>₹ {profit.netProfit.toFixed(2)}</p>
+              </div>
+              <div className="card">
+                <h3>Margin %</h3>
+                <p>{profit.avgMargin.toFixed(2)}%</p>
               </div>
             </div>
 
@@ -107,6 +151,38 @@ function DashboardPage() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            <div className="chart-section">
+              <h3>Top Profitable Products</h3>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Qty Sold</th>
+                    <th>Revenue</th>
+                    <th>COGS</th>
+                    <th>Profit</th>
+                    <th>Margin</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {profit.topProfitableProducts.length === 0 ? (
+                    <tr><td colSpan={6} className="muted">No profit data yet.</td></tr>
+                  ) : (
+                    profit.topProfitableProducts.map((product) => (
+                      <tr key={product.productId}>
+                        <td>{product.productName} {product.sku ? `(${product.sku})` : ''}</td>
+                        <td>{product.totalQuantity}</td>
+                        <td>₹{product.totalRevenue.toFixed(2)}</td>
+                        <td>₹{product.totalCOGS.toFixed(2)}</td>
+                        <td>₹{product.totalProfit.toFixed(2)}</td>
+                        <td>{product.margin.toFixed(2)}%</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </>
         )}

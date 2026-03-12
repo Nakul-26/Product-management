@@ -149,6 +149,8 @@ function SalesHistoryPage() {
               <th>Payment Method</th>
               <th>Total Amount</th>
               <th>Created By</th>
+              <th>Profit</th>
+              <th>Margin</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -156,7 +158,7 @@ function SalesHistoryPage() {
           <tbody>
             {paginatedSales.length === 0 ? (
               <tr>
-                <td colSpan={7} className="muted">
+                <td colSpan={9} className="muted">
                   No sales found for selected filters.
                 </td>
               </tr>
@@ -168,6 +170,8 @@ function SalesHistoryPage() {
                   <td>{sale.paymentMethod}</td>
                   <td>₹{sale.grandTotal.toFixed(2)}</td>
                   <td>{sale.createdBy}</td>
+                  <td>₹{(sale.grossProfit || 0).toFixed(2)}</td>
+                  <td>{(sale.margin || 0).toFixed(2)}%</td>
                   <td><span className="status-pill">completed</span></td>
                   <td>
                     <div className="action-row">
@@ -213,6 +217,8 @@ function SalesHistoryPage() {
             <p><strong>Discount:</strong> ₹{selectedSale.discount.toFixed(2)}</p>
             <p><strong>GST:</strong> ₹{selectedSale.gstAmount.toFixed(2)} ({selectedSale.gstRate}%)</p>
             <p><strong>Grand Total:</strong> ₹{selectedSale.grandTotal.toFixed(2)}</p>
+            <p><strong>Gross Profit:</strong> ₹{(selectedSale.grossProfit || 0).toFixed(2)}</p>
+            <p><strong>Margin:</strong> {(selectedSale.margin || 0).toFixed(2)}%</p>
             <h4>Items</h4>
             <ul className="modal-items-list">
               {selectedSale.items.map((item) => (

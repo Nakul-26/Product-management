@@ -1,5 +1,6 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/authMiddleware';
+import { Expense } from '../models/Expense';
 import { Sale } from '../models/Sale';
 
 export const getProfitSummary = async (req: AuthenticatedRequest, res: Response) => {
@@ -15,7 +16,12 @@ export const getProfitSummary = async (req: AuthenticatedRequest, res: Response)
     match.createdAt = range;
   }
 
-  const [totalsAgg, topProductsAgg] = await Promise.all([
+  const expenseMatch: Record<string, unknown> = {};
+  if (match.createdAt) {
+    expenseMatch.expenseDate = match.createdAt;
+  }
+
+  const [totalsAgg, topProductsAgg, expenseAgg] = await Promise.all([
     Sale.aggregate([
       { $match: match },
       {
@@ -43,10 +49,21 @@ export const getProfitSummary = async (req: AuthenticatedRequest, res: Response)
       },
       { $sort: { totalProfit: -1 } },
       { $limit: 10 }
+    ]),
+    Expense.aggregate([
+      { $match: expenseMatch },
+      {
+        $group: {
+          _id: null,
+          totalExpenses: { $sum: '$amount' }
+        }
+      }
     ])
   ]);
 
   const totals = totalsAgg[0] || { totalRevenue: 0, totalCOGS: 0, totalProfit: 0 };
+  const totalExpenses = expenseAgg[0]?.totalExpenses ?? 0;
+  const netProfit = totals.totalProfit - totalExpenses;
   const avgMargin = totals.totalRevenue > 0 ? (totals.totalProfit / totals.totalRevenue) * 100 : 0;
 
   res.json({
@@ -54,6 +71,8 @@ export const getProfitSummary = async (req: AuthenticatedRequest, res: Response)
     totalRevenue: totals.totalRevenue,
     totalCOGS: totals.totalCOGS,
     totalProfit: totals.totalProfit,
+    totalExpenses,
+    netProfit,
     avgMargin,
     topProfitableProducts: topProductsAgg.map((row) => ({
       productId: row._id,
