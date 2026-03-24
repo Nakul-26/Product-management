@@ -86,6 +86,126 @@ function SalesHistoryPage() {
     }
   }, [page, totalPages]);
 
+
+  const printInvoice = () => {
+    if (!invoiceData) return;
+
+    const printWindow = window.open('', '_blank', 'width=900,height=700');
+    if (!printWindow) {
+      setInvoiceError('Unable to open print window. Please allow pop-ups and try again.');
+      return;
+    }
+
+    const rows = invoiceData.items
+      .map((item) => `
+        <tr>
+          <td style="padding:8px;border:1px solid #d0d7de;">${item.productName}</td>
+          <td style="padding:8px;border:1px solid #d0d7de;">${item.quantity}</td>
+          <td style="padding:8px;border:1px solid #d0d7de;">₹${item.unitPrice.toFixed(2)}</td>
+          <td style="padding:8px;border:1px solid #d0d7de;">₹${item.lineTotal.toFixed(2)}</td>
+        </tr>
+      `)
+      .join('');
+
+    const html = `
+      <html>
+        <head>
+          <title>Invoice ${invoiceData.invoiceNumber}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 24px; color: #111827; }
+            h1, h2, h3, p { margin: 0 0 10px; }
+            .meta { margin-bottom: 14px; }
+            table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; }
+            th, td { text-align: left; }
+            th { padding: 8px; border: 1px solid #d0d7de; background: #f8fafc; }
+            .totals p { margin: 4px 0; }
+            @media print { body { margin: 10mm; } }
+          </style>
+        </head>
+        <body>
+          <h2>Sales Invoice</h2>
+          <div class="meta">
+            <p><strong>Invoice #:</strong> ${invoiceData.invoiceNumber}</p>
+            <p><strong>Date:</strong> ${new Date(invoiceData.createdAt).toLocaleString()}</p>
+            <p><strong>Customer:</strong> ${invoiceData.customerName || '-'}</p>
+            <p><strong>Phone:</strong> ${invoiceData.customerPhone || '-'}</p>
+            <p><strong>Payment:</strong> ${invoiceData.paymentMethod}</p>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th>Line Total</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+
+          <div class="totals">
+            <p><strong>Sub Total:</strong> ₹${invoiceData.subTotal.toFixed(2)}</p>
+            <p><strong>Discount:</strong> ₹${invoiceData.discount.toFixed(2)}</p>
+            <p><strong>GST:</strong> ₹${invoiceData.gstAmount.toFixed(2)} (${invoiceData.gstRate}%)</p>
+            <h3>Total: ₹${invoiceData.grandTotal.toFixed(2)}</h3>
+          </div>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+  };
+
+
+  const csvValue = (value: string | number | null | undefined) => {
+    const raw = value === null || value === undefined ? '' : String(value);
+    return `"${raw.replace(/"/g, '""')}"`;
+  };
+
+  const exportSalesCsv = () => {
+    const headers = [
+      'Invoice',
+      'Date',
+      'Payment Method',
+      'Customer',
+      'Phone',
+      'Grand Total',
+      'Gross Profit',
+      'Margin %',
+      'Created By'
+    ];
+
+    const rows = filteredSales.map((sale) => [
+      sale.invoiceNumber,
+      new Date(sale.createdAt).toISOString(),
+      sale.paymentMethod,
+      sale.customerName || '',
+      sale.customerPhone || '',
+      sale.grandTotal.toFixed(2),
+      (sale.grossProfit || 0).toFixed(2),
+      (sale.margin || 0).toFixed(2),
+      sale.createdBy
+    ]);
+
+    const csv = [headers, ...rows].map((row) => row.map((cell) => csvValue(cell)).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    const dateStamp = new Date().toISOString().slice(0, 10);
+    link.href = url;
+    link.download = `sales-history-${dateStamp}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const openInvoice = async (saleId: string) => {
     setInvoiceLoading(true);
     setInvoiceError('');
@@ -110,9 +230,14 @@ function SalesHistoryPage() {
       <section className="panel">
         <div className="panel-header">
           <h2>Filters</h2>
-          <button type="button" className="btn btn-light" onClick={loadSales} disabled={loading}>
-            {loading ? 'Refreshing...' : 'Refresh'}
-          </button>
+          <div className="action-row">
+            <button type="button" className="btn btn-light" onClick={exportSalesCsv} disabled={loading || filteredSales.length === 0}>
+              Export CSV
+            </button>
+            <button type="button" className="btn btn-light" onClick={loadSales} disabled={loading}>
+              {loading ? 'Refreshing...' : 'Refresh'}
+            </button>
+          </div>
         </div>
 
         <div className="history-filters">
@@ -236,9 +361,19 @@ function SalesHistoryPage() {
           <article className="modal-card" role="dialog" onClick={(event) => event.stopPropagation()}>
             <div className="panel-header">
               <h3>Invoice</h3>
-              <button className="btn btn-light" type="button" onClick={() => { setInvoiceData(null); setInvoiceError(''); }}>
-                Close
-              </button>
+              <div className="action-row">
+                <button
+                  className="btn btn-primary"
+                  type="button"
+                  onClick={printInvoice}
+                  disabled={!invoiceData || invoiceLoading}
+                >
+                  Print
+                </button>
+                <button className="btn btn-light" type="button" onClick={() => { setInvoiceData(null); setInvoiceError(''); }}>
+                  Close
+                </button>
+              </div>
             </div>
 
             {invoiceLoading && <p>Loading invoice...</p>}

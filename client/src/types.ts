@@ -162,6 +162,28 @@ export interface ExpenseListResponse {
   };
 }
 
+export type StockAdjustmentReason = 'damaged' | 'expired' | 'count_correction' | 'theft' | 'return' | 'other';
+
+export interface StockAdjustment {
+  _id: string;
+  productId: { _id: string; name: string; sku: string; stock?: number } | string;
+  quantityChange: number;
+  reason: StockAdjustmentReason;
+  notes?: string;
+  createdBy: { _id?: string; name?: string; email?: string } | string;
+  createdAt: string;
+}
+
+export interface StockAdjustmentListResponse {
+  data: StockAdjustment[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 export interface PurchaseItem {
   productId: { _id: string; name: string; sku: string } | string;
   quantity: number;

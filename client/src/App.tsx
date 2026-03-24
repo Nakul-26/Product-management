@@ -5,11 +5,12 @@ import SalesPage from './pages/SalesPage';
 import PurchasesPage from './pages/PurchasesPage';
 import ExpensesPage from './pages/ExpensesPage';
 import ProductManagementPage from './pages/ProductManagementPage';
+import StockAdjustmentsPage from './pages/StockAdjustmentsPage';
 import LoginPage from './pages/LoginPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import './styles.css';
 
-type AppRoute = '/dashboard' | '/sales' | '/sales/history' | '/products' | '/purchases' | '/expenses' | '/login';
+type AppRoute = '/dashboard' | '/sales' | '/sales/history' | '/products' | '/purchases' | '/expenses' | '/stock-adjustments' | '/login';
 
 const normalizePath = (path: string): AppRoute => {
   if (path === '/sales') return '/sales';
@@ -17,6 +18,7 @@ const normalizePath = (path: string): AppRoute => {
   if (path === '/products') return '/products';
   if (path === '/purchases') return '/purchases';
   if (path === '/expenses') return '/expenses';
+  if (path === '/stock-adjustments') return '/stock-adjustments';
   if (path === '/login') return '/login';
   return '/dashboard';
 };
@@ -81,6 +83,9 @@ function AppShell() {
         <button type="button" className={`btn ${route === '/expenses' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/expenses')}>
           Expenses
         </button>
+        <button type="button" className={`btn ${route === '/stock-adjustments' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/stock-adjustments')}>
+          Stock Adjustments
+        </button>
         <span className="nav-spacer" />
         <span className="muted">{user.name} ({user.role})</span>
         <button type="button" className="btn btn-light" onClick={logout}>Logout</button>
@@ -92,6 +97,7 @@ function AppShell() {
       {route === '/products' && user.role === 'owner' && <ProductManagementPage />}
       {route === '/purchases' && user.role === 'owner' && <PurchasesPage />}
       {route === '/expenses' && <ExpensesPage />}
+      {route === '/stock-adjustments' && <StockAdjustmentsPage />}
     </>
   );
 }

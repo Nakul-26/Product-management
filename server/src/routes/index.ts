@@ -16,6 +16,7 @@ import { getDashboard } from '../controllers/dashboardController';
 import { createPurchase, getPurchases } from '../controllers/purchasesController';
 import { getProfitSummary } from '../controllers/analyticsController';
 import { createExpense, getExpenses } from '../controllers/expensesController';
+import { createStockAdjustment, getStockAdjustments } from '../controllers/stockAdjustmentsController';
 import authRouter from './authRoutes';
 import { authorizeRoles, requireAuth } from '../middleware/authMiddleware';
 
@@ -63,5 +64,8 @@ router.get('/purchases', asyncHandler(authorizeRoles('owner', 'staff')), asyncHa
 
 router.post('/expenses', asyncHandler(authorizeRoles('owner', 'staff')), asyncHandler(createExpense));
 router.get('/expenses', asyncHandler(authorizeRoles('owner', 'staff')), asyncHandler(getExpenses));
+
+router.post('/stock-adjustments', asyncHandler(authorizeRoles('owner', 'staff')), asyncHandler(createStockAdjustment));
+router.get('/stock-adjustments', asyncHandler(authorizeRoles('owner', 'staff')), asyncHandler(getStockAdjustments));
 
 export default router;
