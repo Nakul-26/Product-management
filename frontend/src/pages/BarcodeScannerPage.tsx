@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+import { Html5Qrcode } from 'html5-qrcode';
 import api from '../api/api';
 import { Product, ProductListResponse } from '../types';
 import { useCart } from '../context/CartContext';
@@ -11,45 +11,66 @@ function BarcodeScannerPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [isCameraActive, setIsCameraActive] = useState(false);
   const { addToCart } = useCart();
-  const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+  const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
+
+  const startScanner = async () => {
+    try {
+      if (!html5QrCodeRef.current) {
+        html5QrCodeRef.current = new Html5Qrcode('reader');
+      }
+
+      if (html5QrCodeRef.current.isScanning) {
+        return;
+      }
+
+      setIsCameraActive(true);
+      setError('');
+      setNotice('');
+
+      await html5QrCodeRef.current.start(
+        { facingMode: 'environment' },
+        { 
+          fps: 20, 
+          qrbox: { width: 300, height: 250 },
+          aspectRatio: 1.0
+        },
+        onScanSuccess,
+        onScanFailure
+      );
+    } catch (err: any) {
+      setError('Failed to start camera. ' + err.message);
+      setIsCameraActive(false);
+    }
+  };
+
+  const stopScanner = async () => {
+    if (html5QrCodeRef.current && html5QrCodeRef.current.isScanning) {
+      try {
+        await html5QrCodeRef.current.stop();
+        setIsCameraActive(false);
+      } catch (err) {
+        console.error('Failed to stop camera', err);
+      }
+    }
+  };
 
   useEffect(() => {
-    scannerRef.current = new Html5QrcodeScanner(
-      'reader',
-      { 
-        fps: 20, 
-        qrbox: { width: 300, height: 250 },
-        aspectRatio: 1.0
-      },
-      /* verbose= */ false
-    );
-
-    scannerRef.current.render(onScanSuccess, onScanFailure);
-
+    startScanner();
     return () => {
-      if (scannerRef.current) {
-        scannerRef.current.clear().catch(err => console.error("Failed to clear scanner", err));
-      }
+      stopScanner();
     };
   }, []);
 
   async function onScanSuccess(decodedText: string) {
-    // If we already have a result and are loading/showing product, ignore new scans
-    if (scanResult || loading) return; 
+    // Immediately stop the camera hardware
+    await stopScanner();
     
     setScanResult(decodedText);
     setLoading(true);
-    setError('');
-    setNotice('');
     setProduct(null);
     setQuantity(1);
-
-    // Pause the scanner to prevent "flickering" while we process the result
-    if (scannerRef.current) {
-      // Note: Html5QrcodeScanner doesn't have a simple 'pause', 
-      // but by checking scanResult above, we effectively ignore new frames.
-    }
 
     try {
       const response = await api.get<ProductListResponse>('/products', {
@@ -70,8 +91,7 @@ function BarcodeScannerPage() {
   }
 
   function onScanFailure(error: any) {
-    // Console is too noisy with scan failures (normal behavior)
-    // console.warn(`Code scan error = ${error}`);
+    // Expected behavior, don't show errors
   }
 
   const handleAddToCart = () => {
@@ -82,6 +102,8 @@ function BarcodeScannerPage() {
         setProduct(null);
         setScanResult(null);
         setQuantity(1);
+        // Start scanner again for next item
+        startScanner();
       } else {
         setError(result.error || 'Failed to add to cart.');
       }
@@ -89,7 +111,6 @@ function BarcodeScannerPage() {
   };
 
   const handleCreateProduct = () => {
-    // Navigate to products page with barcode in state/URL
     const url = `/products?barcode=${scanResult}`;
     window.history.pushState({}, '', url);
     window.dispatchEvent(new PopStateEvent('popstate'));
@@ -101,6 +122,7 @@ function BarcodeScannerPage() {
     setQuantity(1);
     setError('');
     setNotice('');
+    startScanner();
   };
 
   return (
@@ -111,7 +133,22 @@ function BarcodeScannerPage() {
       </header>
 
       <div className="scanner-container">
-        <div id="reader" style={{ width: '100%', maxWidth: '600px', margin: '0 auto' }}></div>
+        <div 
+          id="reader" 
+          style={{ 
+            width: '100%', 
+            maxWidth: '600px', 
+            margin: '0 auto', 
+            background: isCameraActive ? 'transparent' : '#eee',
+            minHeight: '300px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          {!isCameraActive && !scanResult && !loading && <p className="muted">Camera is off. Click "Scan Again" to start.</p>}
+          {!isCameraActive && scanResult && <p className="success-text">Barcode Scanned Successfully!</p>}
+        </div>
         
         {loading && <p>Searching for product...</p>}
         {error && <p className="error-text">{error}</p>}
