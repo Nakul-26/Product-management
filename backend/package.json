@@ -1,7 +1,6 @@
 {
-  "name": "shop-automation-server",
+  "name": "shop-automation-backend",
   "version": "1.0.0",
-  "private": true,
   "main": "dist/server.js",
   "scripts": {
     "dev": "ts-node-dev --respawn server.ts",

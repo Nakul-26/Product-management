@@ -7,6 +7,7 @@ type ProductFilters = {
   status?: 'active' | 'inactive';
   category?: string;
   createdBy?: string;
+  barcode?: string;
   price?: { $gte?: number; $lte?: number };
   expiryDate?: { $gte?: Date; $lte?: Date };
   $text?: { $search: string };
@@ -40,6 +41,7 @@ export const getProducts = async (req: AuthenticatedRequest, res: Response) => {
   const page = Math.max(Number(req.query.page) || 1, 1);
   const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 100);
   const search = (req.query.search as string | undefined)?.trim();
+  const barcode = (req.query.barcode as string | undefined)?.trim();
   const status = req.query.status as 'active' | 'inactive' | undefined;
   const category = req.query.category as string | undefined;
   const createdBy = req.query.createdBy as string | undefined;
@@ -49,6 +51,7 @@ export const getProducts = async (req: AuthenticatedRequest, res: Response) => {
   const filter: ProductFilters = {};
 
   if (search) filter.$text = { $search: search };
+  if (barcode) filter.barcode = barcode;
   if (status) filter.status = status;
   if (category) filter.category = category;
   if (createdBy) filter.createdBy = createdBy;

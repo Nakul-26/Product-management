@@ -69,6 +69,12 @@ function ProductManagementPage() {
 
   useEffect(() => {
     loadData();
+    const params = new URLSearchParams(window.location.search);
+    const barcode = params.get('barcode');
+    if (barcode) {
+      setForm(prev => ({ ...prev, barcode }));
+      setNotice(`Pre-filled barcode: ${barcode}`);
+    }
   }, []);
 
   const resetForm = () => {

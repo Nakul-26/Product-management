@@ -7,11 +7,13 @@ import ExpensesPage from './pages/ExpensesPage';
 import CategoriesPage from './pages/CategoriesPage';
 import ProductManagementPage from './pages/ProductManagementPage';
 import StockAdjustmentsPage from './pages/StockAdjustmentsPage';
+import BarcodeScannerPage from './pages/BarcodeScannerPage';
 import LoginPage from './pages/LoginPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
 import './styles.css';
 
-type AppRoute = '/dashboard' | '/sales' | '/sales/history' | '/products' | '/categories' | '/purchases' | '/expenses' | '/stock-adjustments' | '/login';
+type AppRoute = '/dashboard' | '/sales' | '/sales/history' | '/products' | '/categories' | '/purchases' | '/expenses' | '/stock-adjustments' | '/scanner' | '/login';
 
 const normalizePath = (path: string): AppRoute => {
   if (path === '/sales') return '/sales';
@@ -21,6 +23,7 @@ const normalizePath = (path: string): AppRoute => {
   if (path === '/purchases') return '/purchases';
   if (path === '/expenses') return '/expenses';
   if (path === '/stock-adjustments') return '/stock-adjustments';
+  if (path === '/scanner') return '/scanner';
   if (path === '/login') return '/login';
   return '/dashboard';
 };
@@ -62,6 +65,9 @@ function AppShell() {
         <button type="button" className={`btn ${route === '/dashboard' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/dashboard')}>
           Dashboard
         </button>
+        <button type="button" className={`btn ${route === '/scanner' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/scanner')}>
+          Scanner
+        </button>
         <button type="button" className={`btn ${route === '/sales' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/sales')}>
           POS
         </button>
@@ -99,6 +105,7 @@ function AppShell() {
       </nav>
 
       {route === '/dashboard' && <DashboardPage />}
+      {route === '/scanner' && <BarcodeScannerPage />}
       {route === '/sales' && <SalesPage />}
       {route === '/sales/history' && <SalesHistoryPage />}
       {route === '/products' && user.role === 'owner' && <ProductManagementPage />}
@@ -113,7 +120,9 @@ function AppShell() {
 function App() {
   return (
     <AuthProvider>
-      <AppShell />
+      <CartProvider>
+        <AppShell />
+      </CartProvider>
     </AuthProvider>
   );
 }

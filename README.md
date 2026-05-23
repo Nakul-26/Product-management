@@ -5,12 +5,12 @@ A production-style baseline setup for a Product / Inventory / Sales ERP with cle
 ## Stack
 - **Backend**: Node.js, Express, TypeScript, MongoDB (Mongoose)
 - **Frontend**: React, Vite, TypeScript
-- **Monorepo**: npm workspaces (`server`, `client`)
+- **Monorepo**: npm workspaces (`backend`, `frontend`)
 
 ## Project Structure
 ```text
 product-management/
-├── server/
+├── backend/
 │   ├── src/
 │   │   ├── config/
 │   │   ├── controllers/
@@ -25,7 +25,7 @@ product-management/
 │   ├── package.json
 │   ├── tsconfig.json
 │   └── server.ts
-└── client/
+└── frontend/
     └── src/
         ├── api/
         ├── pages/
@@ -42,14 +42,14 @@ product-management/
    ```
 2. Configure backend environment:
    ```bash
-   cp server/.env.example server/.env
+   cp backend/.env.example backend/.env
    ```
-3. Update `MONGODB_URI` in `server/.env` if needed.
+3. Update `MONGODB_URI` in `backend/.env` if needed.
 
 ## Run
 ```bash
-npm run dev:server
-npm run dev:client
+npm run dev:backend
+npm run dev:frontend
 ```
 
 ## Health Check

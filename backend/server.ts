@@ -9,7 +9,7 @@ const PORT = Number(process.env.PORT || 5000);
 const boot = async () => {
   const mongoUri = process.env.MONGODB_URI;
   if (!mongoUri) {
-    throw new Error('MONGODB_URI is required. Copy server/.env.example to server/.env and set it.');
+    throw new Error('MONGODB_URI is required. Copy backend/.env.example to backend/.env and set it.');
   }
 
   await connectDb(mongoUri);

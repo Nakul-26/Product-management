@@ -109,6 +109,9 @@ function PurchasesPage() {
   const itemProductName = (productId: Purchase['items'][number]['productId']) =>
     typeof productId === 'string' ? productId : `${productId.name} (${productId.sku})`;
 
+  const createdByName = (createdBy: Purchase['createdBy']) =>
+    typeof createdBy === 'string' ? createdBy : createdBy?.name || 'Unknown';
+
   return (
     <main className="app">
       <header>
@@ -235,7 +238,7 @@ function PurchasesPage() {
                       </ul>
                     </td>
                     <td>₹{purchase.totalAmount.toFixed(2)}</td>
-                    <td>{purchase.createdBy}</td>
+                    <td>{createdByName(purchase.createdBy)}</td>
                   </tr>
                 ))
               )}

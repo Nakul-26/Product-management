@@ -1,15 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import api from '../api/api';
 import { Product, ProductListResponse } from '../types';
-
-type CartItem = {
-  product: Product;
-  quantity: number;
-};
+import { useCart } from '../context/CartContext';
 
 function SalesPage() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const { cart, addToCart: addToCartGlobal, removeFromCart, updateQuantity, clearCart, subTotal } = useCart();
   const [search, setSearch] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'upi' | 'card'>('cash');
   const [discount, setDiscount] = useState('0');
@@ -48,42 +44,11 @@ function SalesPage() {
   const addToCart = (product: Product) => {
     setError('');
     setNotice('');
-
-    if (product.stock <= 0) {
-      setError(`${product.name} is out of stock.`);
-      return;
+    const result = addToCartGlobal(product);
+    if (!result.success) {
+      setError(result.error || 'Failed to add to cart.');
     }
-
-    setCart((prev) => {
-      const existing = prev.find((item) => item.product._id === product._id);
-      if (!existing) return [...prev, { product, quantity: 1 }];
-      const nextQty = Math.min(existing.quantity + 1, product.stock);
-      return prev.map((item) => (item.product._id === product._id ? { ...item, quantity: nextQty } : item));
-    });
   };
-
-  const removeFromCart = (productId: string) => {
-    setCart((prev) => prev.filter((item) => item.product._id !== productId));
-  };
-
-  const updateQuantity = (productId: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(productId);
-      return;
-    }
-
-    setCart((prev) =>
-      prev.map((item) => {
-        if (item.product._id !== productId) return item;
-        return { ...item, quantity: Math.min(quantity, item.product.stock) };
-      })
-    );
-  };
-
-  const subTotal = useMemo(
-    () => cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0),
-    [cart]
-  );
 
   const discountAmount = Math.max(Number(discount || 0), 0);
   const taxable = Math.max(subTotal - discountAmount, 0);
@@ -91,7 +56,7 @@ function SalesPage() {
   const grandTotal = taxable + gstAmount;
 
   const resetAfterSale = () => {
-    setCart([]);
+    clearCart();
     setDiscount('0');
     setGstRate('0');
     setCustomerName('');

@@ -70,6 +70,7 @@ export const getPurchases = async (req: AuthenticatedRequest, res: Response) => 
     Purchase.find()
       .sort({ purchaseDate: -1, createdAt: -1 })
       .populate('items.productId', 'name sku')
+      .populate('createdBy', 'name')
       .skip((page - 1) * limit)
       .limit(limit),
     Purchase.countDocuments()

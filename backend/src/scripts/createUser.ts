@@ -5,7 +5,7 @@ import { connectDb } from '../config/db';
 import { User } from '../models/User';
 import { hashPassword } from '../utils/auth';
 
-// Load .env from server root
+// Load .env from backend root
 dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 const createUser = async () => {

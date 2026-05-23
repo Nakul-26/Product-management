@@ -2,16 +2,16 @@
 
 ```bash
 npm install
-cp server/.env.example server/.env
+cp backend/.env.example backend/.env
 ```
 
-Set a valid `MONGODB_URI` in `server/.env`.
+Set a valid `MONGODB_URI` in `backend/.env`.
 
 Start backend and frontend in separate terminals:
 
 ```bash
-npm run dev:server
-npm run dev:client
+npm run dev:backend
+npm run dev:frontend
 ```
 
 Open:

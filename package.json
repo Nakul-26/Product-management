@@ -3,14 +3,14 @@
   "private": true,
   "version": "1.0.0",
   "workspaces": [
-    "server",
-    "client"
+    "backend",
+    "frontend"
   ],
   "scripts": {
-    "dev": "npm run dev -w server",
-    "dev:server": "npm run dev -w server",
-    "dev:client": "npm run dev -w client",
-    "build": "npm run build -w server && npm run build -w client",
-    "start": "npm run start -w server"
+    "dev": "npm run dev -w backend",
+    "dev:backend": "npm run dev -w backend",
+    "dev:frontend": "npm run dev -w frontend",
+    "build": "npm run build -w backend && npm run build -w frontend",
+    "start": "npm run start -w backend"
   }
 }
