@@ -132,32 +132,34 @@ function StockAdjustmentsPage() {
             <button type="button" className="btn btn-light" onClick={loadData} disabled={loading}>Refresh</button>
           </div>
           <p className="muted"><strong>Net stock change:</strong> {totalAdjusted >= 0 ? '+' : ''}{totalAdjusted}</p>
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Product</th>
-                <th>Change</th>
-                <th>Reason</th>
-                <th>Created By</th>
-              </tr>
-            </thead>
-            <tbody>
-              {adjustments.length === 0 ? (
-                <tr><td colSpan={5} className="muted">No adjustments recorded yet.</td></tr>
-              ) : (
-                adjustments.map((entry) => (
-                  <tr key={entry._id}>
-                    <td>{new Date(entry.createdAt).toLocaleString()}</td>
-                    <td>{productLabel(entry.productId)}</td>
-                    <td>{entry.quantityChange > 0 ? '+' : ''}{entry.quantityChange}</td>
-                    <td>{entry.reason}</td>
-                    <td>{userLabel(entry.createdBy)}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+          <div className="table-container mobile-stack-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Product</th>
+                  <th>Change</th>
+                  <th>Reason</th>
+                  <th>Created By</th>
+                </tr>
+              </thead>
+              <tbody>
+                {adjustments.length === 0 ? (
+                  <tr><td colSpan={5} className="muted">No adjustments recorded yet.</td></tr>
+                ) : (
+                  adjustments.map((entry) => (
+                    <tr key={entry._id}>
+                      <td data-label="Date">{new Date(entry.createdAt).toLocaleString()}</td>
+                      <td data-label="Product">{productLabel(entry.productId)}</td>
+                      <td data-label="Change">{entry.quantityChange > 0 ? '+' : ''}{entry.quantityChange}</td>
+                      <td data-label="Reason">{entry.reason}</td>
+                      <td data-label="Created By">{userLabel(entry.createdBy)}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </article>
       </section>
     </main>

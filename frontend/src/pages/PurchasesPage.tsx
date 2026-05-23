@@ -164,36 +164,38 @@ function PurchasesPage() {
               </button>
             </div>
 
-            <table>
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>Qty</th>
-                  <th>Cost</th>
-                  <th>Line Total</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.length === 0 ? (
-                  <tr><td colSpan={5} className="muted">No items added yet.</td></tr>
-                ) : (
-                  items.map((item) => (
-                    <tr key={item.product._id}>
-                      <td>{item.product.name} ({item.product.sku})</td>
-                      <td>{item.quantity}</td>
-                      <td>₹{item.costPrice.toFixed(2)}</td>
-                      <td>₹{(item.quantity * item.costPrice).toFixed(2)}</td>
-                      <td>
-                        <button type="button" className="btn btn-danger" onClick={() => removeItem(item.product._id)}>
-                          Remove
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+            <div className="table-container mobile-stack-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Cost</th>
+                    <th>Line Total</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.length === 0 ? (
+                    <tr><td colSpan={5} className="muted">No items added yet.</td></tr>
+                  ) : (
+                    items.map((item) => (
+                      <tr key={item.product._id}>
+                        <td data-label="Product">{item.product.name} ({item.product.sku})</td>
+                        <td data-label="Qty">{item.quantity}</td>
+                        <td data-label="Cost">₹{item.costPrice.toFixed(2)}</td>
+                        <td data-label="Line Total">₹{(item.quantity * item.costPrice).toFixed(2)}</td>
+                        <td data-label="Action">
+                          <button type="button" className="btn btn-danger" onClick={() => removeItem(item.product._id)}>
+                            Remove
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
 
             <div className="purchase-actions">
               <p><strong>Total Purchase Amount:</strong> ₹{totalAmount.toFixed(2)}</p>
@@ -210,40 +212,42 @@ function PurchasesPage() {
             <button type="button" className="btn btn-light" onClick={loadPurchases} disabled={loading}>Refresh</button>
           </div>
 
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Supplier</th>
-                <th>Items</th>
-                <th>Total</th>
-                <th>Created By</th>
-              </tr>
-            </thead>
-            <tbody>
-              {purchases.length === 0 ? (
-                <tr><td colSpan={5} className="muted">No purchases yet.</td></tr>
-              ) : (
-                purchases.map((purchase) => (
-                  <tr key={purchase._id}>
-                    <td>{new Date(purchase.purchaseDate || purchase.createdAt || '').toLocaleString()}</td>
-                    <td>{purchase.supplierName}</td>
-                    <td>
-                      <ul className="history-items-list">
-                        {purchase.items.map((item, idx) => (
-                          <li key={`${purchase._id}-${idx}`}>
-                            {itemProductName(item.productId)} — {item.quantity} × ₹{item.costPrice.toFixed(2)}
-                          </li>
-                        ))}
-                      </ul>
-                    </td>
-                    <td>₹{purchase.totalAmount.toFixed(2)}</td>
-                    <td>{createdByName(purchase.createdBy)}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+          <div className="table-container mobile-stack-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Supplier</th>
+                  <th>Items</th>
+                  <th>Total</th>
+                  <th>Created By</th>
+                </tr>
+              </thead>
+              <tbody>
+                {purchases.length === 0 ? (
+                  <tr><td colSpan={5} className="muted">No purchases yet.</td></tr>
+                ) : (
+                  purchases.map((purchase) => (
+                    <tr key={purchase._id}>
+                      <td data-label="Date">{new Date(purchase.purchaseDate || purchase.createdAt || '').toLocaleString()}</td>
+                      <td data-label="Supplier">{purchase.supplierName}</td>
+                      <td data-label="Items">
+                        <ul className="history-items-list">
+                          {purchase.items.map((item, idx) => (
+                            <li key={`${purchase._id}-${idx}`}>
+                              {itemProductName(item.productId)} — {item.quantity} × ₹{item.costPrice.toFixed(2)}
+                            </li>
+                          ))}
+                        </ul>
+                      </td>
+                      <td data-label="Total">₹{purchase.totalAmount.toFixed(2)}</td>
+                      <td data-label="Created By">{createdByName(purchase.createdBy)}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </article>
       </section>
     </main>

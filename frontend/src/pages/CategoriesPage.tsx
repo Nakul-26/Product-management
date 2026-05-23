@@ -161,43 +161,45 @@ function CategoriesPage() {
         </form>
 
         <h2>Category List</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Slug</th>
-              <th>Parent</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {categories.length === 0 ? (
+        <div className="table-container mobile-stack-table">
+          <table>
+            <thead>
               <tr>
-                <td colSpan={5} className="muted">
-                  No categories yet.
-                </td>
+                <th>Name</th>
+                <th>Slug</th>
+                <th>Parent</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
-            ) : (
-              categories.map((category) => (
-                <tr key={category._id}>
-                  <td>
-                    <strong>{category.name}</strong>
-                    {category.description && <div className="muted">{category.description}</div>}
-                  </td>
-                  <td>{category.slug}</td>
-                  <td>{typeof category.parent === 'object' ? category.parent?.name : '-'}</td>
-                  <td>{category.status}</td>
-                  <td>
-                    <button type="button" className="btn btn-light" onClick={() => handleEdit(category)}>
-                      Edit
-                    </button>
+            </thead>
+            <tbody>
+              {categories.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="muted">
+                    No categories yet.
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                categories.map((category) => (
+                  <tr key={category._id}>
+                    <td data-label="Name">
+                      <strong>{category.name}</strong>
+                      {category.description && <div className="muted">{category.description}</div>}
+                    </td>
+                    <td data-label="Slug">{category.slug}</td>
+                    <td data-label="Parent">{typeof category.parent === 'object' ? category.parent?.name : '-'}</td>
+                    <td data-label="Status">{category.status}</td>
+                    <td data-label="Actions">
+                      <button type="button" className="btn btn-light" onClick={() => handleEdit(category)}>
+                        Edit
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </section>
     </main>
   );

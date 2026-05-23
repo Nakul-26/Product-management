@@ -269,53 +269,55 @@ function SalesHistoryPage() {
       {error && <p className="error-text">{error}</p>}
 
       <section className="panel">
-        <table>
-          <thead>
-            <tr>
-              <th>Invoice</th>
-              <th>Date</th>
-              <th>Payment Method</th>
-              <th>Total Amount</th>
-              <th>Created By</th>
-              <th>Profit</th>
-              <th>Margin</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedSales.length === 0 ? (
+        <div className="table-container mobile-stack-table">
+          <table>
+            <thead>
               <tr>
-                <td colSpan={9} className="muted">
-                  No sales found for selected filters.
-                </td>
+                <th>Invoice</th>
+                <th>Date</th>
+                <th>Payment Method</th>
+                <th>Total Amount</th>
+                <th>Created By</th>
+                <th>Profit</th>
+                <th>Margin</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
-            ) : (
-              paginatedSales.map((sale) => (
-                <tr key={sale._id}>
-                  <td>{sale.invoiceNumber}</td>
-                  <td>{new Date(sale.createdAt).toLocaleString()}</td>
-                  <td>{sale.paymentMethod}</td>
-                  <td>₹{sale.grandTotal.toFixed(2)}</td>
-                  <td>{createdByName(sale.createdBy)}</td>
-                  <td>₹{(sale.grossProfit || 0).toFixed(2)}</td>
-                  <td>{(sale.margin || 0).toFixed(2)}%</td>
-                  <td><span className="status-pill">completed</span></td>
-                  <td>
-                    <div className="action-row">
-                      <button type="button" className="btn btn-light" onClick={() => setSelectedSale(sale)}>
-                        Details
-                      </button>
-                      <button type="button" className="btn btn-primary" onClick={() => openInvoice(sale._id)}>
-                        Invoice
-                      </button>
-                    </div>
+            </thead>
+            <tbody>
+              {paginatedSales.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="muted">
+                    No sales found for selected filters.
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                paginatedSales.map((sale) => (
+                  <tr key={sale._id}>
+                    <td data-label="Invoice">{sale.invoiceNumber}</td>
+                    <td data-label="Date">{new Date(sale.createdAt).toLocaleString()}</td>
+                    <td data-label="Payment">{sale.paymentMethod}</td>
+                    <td data-label="Total">₹{sale.grandTotal.toFixed(2)}</td>
+                    <td data-label="Created By">{createdByName(sale.createdBy)}</td>
+                    <td data-label="Profit">₹{(sale.grossProfit || 0).toFixed(2)}</td>
+                    <td data-label="Margin">{(sale.margin || 0).toFixed(2)}%</td>
+                    <td data-label="Status"><span className="status-pill">completed</span></td>
+                    <td data-label="Actions">
+                      <div className="action-row">
+                        <button type="button" className="btn btn-light" onClick={() => setSelectedSale(sale)}>
+                          Details
+                        </button>
+                        <button type="button" className="btn btn-primary" onClick={() => openInvoice(sale._id)}>
+                          Invoice
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
         <div className="pagination-row">
           <p className="muted">Page {page} of {totalPages}</p>

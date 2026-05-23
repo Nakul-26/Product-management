@@ -129,32 +129,34 @@ function ExpensesPage() {
           </div>
           <p className="muted"><strong>Total (latest records):</strong> ₹{totals.toFixed(2)}</p>
 
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Title</th>
-                <th>Category</th>
-                <th>Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {expenses.length === 0 ? (
+          <div className="table-container mobile-stack-table">
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan={4} className="muted">No expenses recorded yet.</td>
+                  <th>Date</th>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Amount</th>
                 </tr>
-              ) : (
-                expenses.map((expense) => (
-                  <tr key={expense._id}>
-                    <td>{new Date(expense.expenseDate || expense.createdAt || '').toLocaleDateString()}</td>
-                    <td>{expense.title}</td>
-                    <td>{expense.category}</td>
-                    <td>₹{expense.amount.toFixed(2)}</td>
+              </thead>
+              <tbody>
+                {expenses.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="muted">No expenses recorded yet.</td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  expenses.map((expense) => (
+                    <tr key={expense._id}>
+                      <td data-label="Date">{new Date(expense.expenseDate || expense.createdAt || '').toLocaleDateString()}</td>
+                      <td data-label="Title">{expense.title}</td>
+                      <td data-label="Category">{expense.category}</td>
+                      <td data-label="Amount">₹{expense.amount.toFixed(2)}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </article>
       </section>
     </main>

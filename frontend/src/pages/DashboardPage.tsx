@@ -155,34 +155,36 @@ function DashboardPage() {
 
             <div className="chart-section">
               <h3>Top Profitable Products</h3>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Product</th>
-                    <th>Qty Sold</th>
-                    <th>Revenue</th>
-                    <th>COGS</th>
-                    <th>Profit</th>
-                    <th>Margin</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {profit.topProfitableProducts.length === 0 ? (
-                    <tr><td colSpan={6} className="muted">No profit data yet.</td></tr>
-                  ) : (
-                    profit.topProfitableProducts.map((product) => (
-                      <tr key={product.productId}>
-                        <td>{product.productName} {product.sku ? `(${product.sku})` : ''}</td>
-                        <td>{product.totalQuantity}</td>
-                        <td>₹{product.totalRevenue.toFixed(2)}</td>
-                        <td>₹{product.totalCOGS.toFixed(2)}</td>
-                        <td>₹{product.totalProfit.toFixed(2)}</td>
-                        <td>{product.margin.toFixed(2)}%</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+              <div className="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Qty Sold</th>
+                      <th>Revenue</th>
+                      <th>COGS</th>
+                      <th>Profit</th>
+                      <th>Margin</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {profit.topProfitableProducts.length === 0 ? (
+                      <tr><td colSpan={6} className="muted">No profit data yet.</td></tr>
+                    ) : (
+                      profit.topProfitableProducts.map((product) => (
+                        <tr key={product.productId}>
+                          <td>{product.productName} {product.sku ? `(${product.sku})` : ''}</td>
+                          <td>{product.totalQuantity}</td>
+                          <td>₹{product.totalRevenue.toFixed(2)}</td>
+                          <td>₹{product.totalCOGS.toFixed(2)}</td>
+                          <td>₹{product.totalProfit.toFixed(2)}</td>
+                          <td>{product.margin.toFixed(2)}%</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </>
         )}

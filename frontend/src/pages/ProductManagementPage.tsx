@@ -270,55 +270,57 @@ function ProductManagementPage() {
         {selectedCategoryName && <p className="muted">Selected category: {selectedCategoryName}</p>}
 
         <h2>Products</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>SKU</th>
-              <th>Category</th>
-              <th>Price</th>
-              <th>Stock</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.length === 0 ? (
+        <div className="table-container mobile-stack-table">
+          <table>
+            <thead>
               <tr>
-                <td colSpan={7} className="muted">
-                  No products yet.
-                </td>
+                <th>Name</th>
+                <th>SKU</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
-            ) : (
-              products.map((product) => (
-                <tr key={product._id}>
-                  <td>
-                    <strong>{product.name}</strong>
-                    {product.description && <div className="muted">{product.description}</div>}
-                  </td>
-                  <td>{product.sku}</td>
-                  <td>{parseCategoryName(product.category)}</td>
-                  <td>₹{product.price.toFixed(2)}</td>
-                  <td>
-                    {product.stock}
-                    {product.stock <= product.lowStockThreshold && <span className="warning"> (Low)</span>}
-                  </td>
-                  <td>{product.status}</td>
-                  <td>
-                    <div className="action-row">
-                      <button type="button" className="btn btn-light" onClick={() => handleEdit(product)}>
-                        Edit
-                      </button>
-                      <button type="button" className="btn btn-danger" onClick={() => handleDelete(product._id)}>
-                        Delete
-                      </button>
-                    </div>
+            </thead>
+            <tbody>
+              {products.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="muted">
+                    No products yet.
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                products.map((product) => (
+                  <tr key={product._id}>
+                    <td data-label="Name">
+                      <strong>{product.name}</strong>
+                      {product.description && <div className="muted">{product.description}</div>}
+                    </td>
+                    <td data-label="SKU">{product.sku}</td>
+                    <td data-label="Category">{parseCategoryName(product.category)}</td>
+                    <td data-label="Price">₹{product.price.toFixed(2)}</td>
+                    <td data-label="Stock">
+                      {product.stock}
+                      {product.stock <= product.lowStockThreshold && <span className="warning"> (Low)</span>}
+                    </td>
+                    <td data-label="Status">{product.status}</td>
+                    <td data-label="Actions">
+                      <div className="action-row">
+                        <button type="button" className="btn btn-light" onClick={() => handleEdit(product)}>
+                          Edit
+                        </button>
+                        <button type="button" className="btn btn-danger" onClick={() => handleDelete(product._id)}>
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </section>
     </main>
   );
