@@ -4,18 +4,20 @@ import SalesHistoryPage from './pages/SalesHistoryPage';
 import SalesPage from './pages/SalesPage';
 import PurchasesPage from './pages/PurchasesPage';
 import ExpensesPage from './pages/ExpensesPage';
+import CategoriesPage from './pages/CategoriesPage';
 import ProductManagementPage from './pages/ProductManagementPage';
 import StockAdjustmentsPage from './pages/StockAdjustmentsPage';
 import LoginPage from './pages/LoginPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import './styles.css';
 
-type AppRoute = '/dashboard' | '/sales' | '/sales/history' | '/products' | '/purchases' | '/expenses' | '/stock-adjustments' | '/login';
+type AppRoute = '/dashboard' | '/sales' | '/sales/history' | '/products' | '/categories' | '/purchases' | '/expenses' | '/stock-adjustments' | '/login';
 
 const normalizePath = (path: string): AppRoute => {
   if (path === '/sales') return '/sales';
   if (path === '/sales/history') return '/sales/history';
   if (path === '/products') return '/products';
+  if (path === '/categories') return '/categories';
   if (path === '/purchases') return '/purchases';
   if (path === '/expenses') return '/expenses';
   if (path === '/stock-adjustments') return '/stock-adjustments';
@@ -76,6 +78,11 @@ function AppShell() {
           </button>
         )}
         {user.role === 'owner' && (
+          <button type="button" className={`btn ${route === '/categories' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/categories')}>
+            Categories
+          </button>
+        )}
+        {user.role === 'owner' && (
           <button type="button" className={`btn ${route === '/purchases' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/purchases')}>
             Purchases
           </button>
@@ -95,6 +102,7 @@ function AppShell() {
       {route === '/sales' && <SalesPage />}
       {route === '/sales/history' && <SalesHistoryPage />}
       {route === '/products' && user.role === 'owner' && <ProductManagementPage />}
+      {route === '/categories' && user.role === 'owner' && <CategoriesPage />}
       {route === '/purchases' && user.role === 'owner' && <PurchasesPage />}
       {route === '/expenses' && <ExpensesPage />}
       {route === '/stock-adjustments' && <StockAdjustmentsPage />}

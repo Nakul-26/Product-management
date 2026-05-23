@@ -155,7 +155,21 @@ function ProductManagementPage() {
         </div>
 
         {categories.length === 0 && !loading && (
-          <p className="warning">No categories found. Create a category first to add products.</p>
+          <p className="warning">
+            No categories found.{' '}
+            <button
+              type="button"
+              className="btn btn-light"
+              style={{ padding: '2px 8px', fontSize: '12px' }}
+              onClick={() => {
+                window.history.pushState({}, '', '/categories');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }}
+            >
+              Create a category
+            </button>{' '}
+            first to add products.
+          </p>
         )}
 
         {error && <p className="error-text">{error}</p>}
