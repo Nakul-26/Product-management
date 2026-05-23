@@ -47,7 +47,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     const response = await api.post('/auth/login', { email, password });
-    setToken(response.data.token);
+    const tokenValue = response.data.token;
+    // persist token immediately so axios interceptor can pick it up
+    if (tokenValue) localStorage.setItem(TOKEN_KEY, tokenValue);
+    setToken(tokenValue);
     setUser(response.data.user);
   };
 

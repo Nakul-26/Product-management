@@ -30,6 +30,7 @@ const normalizePath = (path: string): AppRoute => {
 
 function AppShell() {
   const [route, setRoute] = useState<AppRoute>(normalizePath(window.location.pathname));
+  const [menuOpen, setMenuOpen] = useState(false);
   const { user, loading, logout } = useAuth();
 
   useEffect(() => {
@@ -42,12 +43,22 @@ function AppShell() {
     if (nextRoute === route) return;
     window.history.pushState({}, '', nextRoute);
     setRoute(nextRoute);
+    setMenuOpen(false); // Close menu on navigation
   };
 
   useEffect(() => {
     if (!loading && !user && route !== '/login') {
       window.history.replaceState({}, '', '/login');
       setRoute('/login');
+    }
+  }, [loading, user, route]);
+
+  // If the user becomes authenticated while on the /login route,
+  // move them to the dashboard so the main content appears.
+  useEffect(() => {
+    if (!loading && user && route === '/login') {
+      window.history.replaceState({}, '', '/dashboard');
+      setRoute('/dashboard');
     }
   }, [loading, user, route]);
 
@@ -62,57 +73,74 @@ function AppShell() {
   return (
     <>
       <nav className="app-nav">
-        <button type="button" className={`btn ${route === '/dashboard' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/dashboard')}>
-          Dashboard
-        </button>
-        <button type="button" className={`btn ${route === '/scanner' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/scanner')}>
-          Scanner
-        </button>
-        <button type="button" className={`btn ${route === '/sales' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/sales')}>
-          POS
-        </button>
-        <button
-          type="button"
-          className={`btn ${route === '/sales/history' ? 'btn-primary' : 'btn-light'}`}
-          onClick={() => navigate('/sales/history')}
-        >
-          Sales History
-        </button>
-        {user.role === 'owner' && (
-          <button type="button" className={`btn ${route === '/products' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/products')}>
-            Products
+        <div className="nav-header">
+          <span className="nav-brand">Retail ERP</span>
+          <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
           </button>
-        )}
-        {user.role === 'owner' && (
-          <button type="button" className={`btn ${route === '/categories' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/categories')}>
-            Categories
+        </div>
+
+        <div className={`nav-links ${menuOpen ? 'open' : ''}`}>
+          <button type="button" className={`btn ${route === '/dashboard' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/dashboard')}>
+            Dashboard
           </button>
-        )}
-        {user.role === 'owner' && (
-          <button type="button" className={`btn ${route === '/purchases' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/purchases')}>
-            Purchases
+          <button type="button" className={`btn ${route === '/scanner' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/scanner')}>
+            Scanner
           </button>
-        )}
-        <button type="button" className={`btn ${route === '/expenses' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/expenses')}>
-          Expenses
-        </button>
-        <button type="button" className={`btn ${route === '/stock-adjustments' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/stock-adjustments')}>
-          Stock Adjustments
-        </button>
-        <span className="nav-spacer" />
-        <span className="muted">{user.name} ({user.role})</span>
-        <button type="button" className="btn btn-light" onClick={logout}>Logout</button>
+          <button type="button" className={`btn ${route === '/sales' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/sales')}>
+            POS
+          </button>
+          <button
+            type="button"
+            className={`btn ${route === '/sales/history' ? 'btn-primary' : 'btn-light'}`}
+            onClick={() => navigate('/sales/history')}
+          >
+            Sales History
+          </button>
+          {user.role === 'owner' && (
+            <button type="button" className={`btn ${route === '/products' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/products')}>
+              Products
+            </button>
+          )}
+          {user.role === 'owner' && (
+            <button type="button" className={`btn ${route === '/categories' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/categories')}>
+              Categories
+            </button>
+          )}
+          {user.role === 'owner' && (
+            <button type="button" className={`btn ${route === '/purchases' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/purchases')}>
+              Purchases
+            </button>
+          )}
+          <button type="button" className={`btn ${route === '/expenses' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/expenses')}>
+            Expenses
+          </button>
+          <button type="button" className={`btn ${route === '/stock-adjustments' ? 'btn-primary' : 'btn-light'}`} onClick={() => navigate('/stock-adjustments')}>
+            Stock Adjustments
+          </button>
+          <span className="nav-spacer" />
+          <div className="nav-user">
+            <span className="muted">{user.name}</span>
+            <button type="button" className="btn btn-light" onClick={logout}>Logout</button>
+          </div>
+        </div>
       </nav>
 
-      {route === '/dashboard' && <DashboardPage />}
-      {route === '/scanner' && <BarcodeScannerPage />}
-      {route === '/sales' && <SalesPage />}
-      {route === '/sales/history' && <SalesHistoryPage />}
-      {route === '/products' && user.role === 'owner' && <ProductManagementPage />}
-      {route === '/categories' && user.role === 'owner' && <CategoriesPage />}
-      {route === '/purchases' && user.role === 'owner' && <PurchasesPage />}
-      {route === '/expenses' && <ExpensesPage />}
-      {route === '/stock-adjustments' && <StockAdjustmentsPage />}
+      <main className="app">
+        {route === '/dashboard' && <DashboardPage />}
+        {route === '/scanner' && <BarcodeScannerPage />}
+        {route === '/sales' && <SalesPage />}
+        {route === '/sales/history' && <SalesHistoryPage />}
+        {route === '/products' && user.role === 'owner' && <ProductManagementPage />}
+        {route === '/categories' && user.role === 'owner' && <CategoriesPage />}
+        {route === '/purchases' && user.role === 'owner' && <PurchasesPage />}
+        {route === '/expenses' && <ExpensesPage />}
+        {route === '/stock-adjustments' && <StockAdjustmentsPage />}
+      </main>
     </>
   );
 }
