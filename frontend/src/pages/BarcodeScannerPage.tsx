@@ -64,20 +64,21 @@ function BarcodeScannerPage() {
   }, []);
 
   async function onScanSuccess(decodedText: string) {
+    const trimmedText = decodedText.trim();
     // Immediately stop the camera hardware
     await stopScanner();
     
-    setScanResult(decodedText);
+    setScanResult(trimmedText);
     setLoading(true);
     setProduct(null);
     setQuantity(1);
 
     try {
       const response = await api.get<ProductListResponse>('/products', {
-        params: { barcode: decodedText }
+        params: { barcode: trimmedText }
       });
 
-      const found = response.data.data.find(p => p.barcode === decodedText);
+      const found = response.data.data.find(p => p.barcode === trimmedText);
       if (found) {
         setProduct(found);
       } else {
@@ -107,6 +108,14 @@ function BarcodeScannerPage() {
       } else {
         setError(result.error || 'Failed to add to cart.');
       }
+    }
+  };
+
+  const handleEditProduct = () => {
+    if (product) {
+      const url = `/products?edit=${product._id}`;
+      window.history.pushState({}, '', url);
+      window.dispatchEvent(new PopStateEvent('popstate'));
     }
   };
 
@@ -170,23 +179,34 @@ function BarcodeScannerPage() {
               <div className="product-info">
                 <p><strong>Name:</strong> {product.name}</p>
                 <p><strong>Price:</strong> ₹{product.price.toFixed(2)}</p>
-                <p><strong>Stock:</strong> {product.stock}</p>
+                <p><strong>Stock:</strong> <span className={product.stock <= 0 ? 'error-text' : ''}>{product.stock}</span></p>
                 
-                <div style={{ margin: '15px 0' }}>
-                  <label style={{ display: 'block', marginBottom: '5px' }}>Quantity:</label>
-                  <input 
-                    type="number" 
-                    min={1} 
-                    max={product.stock} 
-                    value={quantity} 
-                    onChange={(e) => setQuantity(Number(e.target.value))}
-                    style={{ padding: '8px', width: '80px', fontSize: '16px' }}
-                  />
-                </div>
+                {product.stock > 0 ? (
+                  <div style={{ margin: '15px 0' }}>
+                    <label style={{ display: 'block', marginBottom: '5px' }}>Quantity:</label>
+                    <input 
+                      type="number" 
+                      min={1} 
+                      max={product.stock} 
+                      value={quantity} 
+                      onChange={(e) => setQuantity(Number(e.target.value))}
+                      style={{ padding: '8px', width: '80px', fontSize: '16px' }}
+                    />
+                  </div>
+                ) : (
+                  <p className="warning-text" style={{ margin: '15px 0' }}>Product is out of stock. Please update stock to add to cart.</p>
+                )}
 
-                <button className="btn btn-primary" onClick={handleAddToCart}>
-                  Add to Cart
-                </button>
+                <div className="scanner-actions" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  {product.stock > 0 && (
+                    <button className="btn btn-primary" onClick={handleAddToCart}>
+                      Add to Cart
+                    </button>
+                  )}
+                  <button className="btn btn-light" onClick={handleEditProduct}>
+                    Update Stock / Edit Product
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="scanner-actions">

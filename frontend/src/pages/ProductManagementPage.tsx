@@ -68,13 +68,30 @@ function ProductManagementPage() {
   };
 
   useEffect(() => {
-    loadData();
-    const params = new URLSearchParams(window.location.search);
-    const barcode = params.get('barcode');
-    if (barcode) {
-      setForm(prev => ({ ...prev, barcode }));
-      setNotice(`Pre-filled barcode: ${barcode}`);
-    }
+    const init = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([fetchProducts(), fetchCategories()]);
+        
+        const params = new URLSearchParams(window.location.search);
+        const barcode = params.get('barcode');
+        const editId = params.get('edit');
+        
+        if (editId) {
+          const response = await api.get<Product>(`/products/${editId}`);
+          handleEdit(response.data);
+          setNotice(`Editing product: ${response.data.name}`);
+        } else if (barcode) {
+          setForm(prev => ({ ...prev, barcode }));
+          setNotice(`Pre-filled barcode: ${barcode}`);
+        }
+      } catch (requestError: any) {
+        setError(requestError?.response?.data?.error || requestError?.message || 'Failed to load product page data.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    init();
   }, []);
 
   const resetForm = () => {
