@@ -11,7 +11,7 @@ import {
 import { getPayments, createPayment, updatePayment } from '../controllers/paymentsController';
 import { createCategory, getCategories, getCategoryById } from '../controllers/categoriesController';
 import { getDeliveries, createDelivery, updateDelivery } from '../controllers/deliveriesController';
-import { createSale, getSales, getSaleById, getDailySalesSummary, getSaleInvoice } from '../controllers/salesController';
+import { createSale, getSales, getSaleById, getDailySalesSummary, getWeeklySalesSummary, getSaleInvoice } from '../controllers/salesController';
 import { getDashboard } from '../controllers/dashboardController';
 import { createPurchase, getPurchases } from '../controllers/purchasesController';
 import { getProfitSummary } from '../controllers/analyticsController';
@@ -45,6 +45,7 @@ router.get('/categories/:id', asyncHandler(getCategoryById));
 router.post('/sales', asyncHandler(authorizeRoles('owner', 'staff')), asyncHandler(createSale));
 router.get('/sales', asyncHandler(authorizeRoles('owner', 'staff')), asyncHandler(getSales));
 router.get('/sales/summary/daily', asyncHandler(authorizeRoles('owner', 'staff')), asyncHandler(getDailySalesSummary));
+router.get('/sales/summary/weekly', asyncHandler(authorizeRoles('owner', 'staff')), asyncHandler(getWeeklySalesSummary));
 router.get('/sales/:id/invoice', asyncHandler(authorizeRoles('owner', 'staff')), asyncHandler(getSaleInvoice));
 router.get('/sales/:id', asyncHandler(authorizeRoles('owner', 'staff')), asyncHandler(getSaleById));
 

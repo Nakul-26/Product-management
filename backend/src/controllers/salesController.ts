@@ -158,6 +158,42 @@ export const getDailySalesSummary = async (req: AuthenticatedRequest, res: Respo
   res.json({ date: dateParam, ...totals });
 };
 
+export const getWeeklySalesSummary = async (_req: AuthenticatedRequest, res: Response) => {
+  const end = new Date();
+  end.setHours(23, 59, 59, 999);
+  const start = new Date(end);
+  start.setDate(start.getDate() - 6); // Last 7 days including today
+  start.setHours(0, 0, 0, 0);
+
+  const summary = await Sale.aggregate([
+    { $match: { createdAt: { $gte: start, $lte: end } } },
+    {
+      $group: {
+        _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+        totalAmount: { $sum: '$grandTotal' }
+      }
+    }
+  ]);
+
+  const summariesMap: Record<string, number> = {};
+  for (const row of summary) {
+    summariesMap[row._id] = row.totalAmount;
+  }
+
+  const summaries = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(end);
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().slice(0, 10);
+    summaries.push({
+      date: dateStr,
+      totalSales: summariesMap[dateStr] || 0
+    });
+  }
+
+  res.json({ summaries });
+};
+
 export const getSaleInvoice = async (req: AuthenticatedRequest, res: Response) => {
   const sale = await Sale.findById(req.params.id);
   if (!sale) return res.status(404).json({ error: 'Sale not found' });

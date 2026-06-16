@@ -32,38 +32,26 @@ function DashboardPage() {
       setLoading(true);
       setError('');
       try {
-        const [dashboardRes, profitRes] = await Promise.all([
+        const [dashboardRes, profitRes, weeklyRes] = await Promise.all([
           api.get<Dashboard>('/dashboard'),
-          api.get<ProfitSummary>('/analytics/profit')
+          api.get<ProfitSummary>('/analytics/profit'),
+          api.get<{ summaries: DailySalesSummary[] }>('/sales/summary/weekly')
         ]);
-
-        const days = Array.from({ length: 7 }).map((_, index) => {
-          const date = new Date();
-          date.setDate(date.getDate() - (6 - index));
-          return date;
-        });
-
-        const summaries = await Promise.all(
-          days.map(async (date) => {
-            const dateParam = date.toISOString().slice(0, 10);
-            try {
-              const summaryRes = await api.get<DailySalesSummary>('/sales/summary/daily', { params: { date: dateParam } });
-              return {
-                day: dayName(date),
-                revenue: summaryRes.data.totalSales || 0
-              };
-            } catch {
-              return {
-                day: dayName(date),
-                revenue: 0
-              };
-            }
-          })
-        );
 
         setData(dashboardRes.data);
         setProfit(profitRes.data);
-        setChartData(summaries);
+        
+        // Map the backend weekly summaries into the expected chart data format
+        if (weeklyRes.data && weeklyRes.data.summaries) {
+           const formattedChartData = weeklyRes.data.summaries.map(s => ({
+             day: dayName(new Date(s.date)),
+             revenue: s.totalSales
+           }));
+           // Reverse to show oldest to newest (left to right) if backend returns newest first
+           setChartData(formattedChartData.reverse());
+        } else {
+           setChartData([]);
+        }
       } catch {
         setError('Failed to load dashboard');
       } finally {
