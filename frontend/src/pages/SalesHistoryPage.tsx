@@ -419,7 +419,7 @@ function SalesHistoryPage() {
           </article>
         </section>
       )}
-    </main>
+    </div>
   );
 }
 
