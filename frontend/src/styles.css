@@ -373,6 +373,15 @@ tr:hover td { background-color: #fbfdff; }
   align-items: end;
 }
 
+.history-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+}
+
 /* Login Page */
 .login-page {
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);

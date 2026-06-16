@@ -224,33 +224,38 @@ function SalesHistoryPage() {
   };
 
   return (
-    <main className="app">
-      <header>
+    <div className="sales-history-page-wrapper">
+      <header style={{ marginBottom: '2rem' }}>
         <h1>Sales History</h1>
-        <p>Audit previous sales and open invoices.</p>
+        <p>Audit previous sales, search by date, and view detailed invoices.</p>
       </header>
 
-      <section className="panel">
+      <section className="panel" style={{ marginBottom: '1.5rem' }}>
         <div className="panel-header">
-          <h2>Filters</h2>
+          <h2 style={{ fontSize: '1.1rem', margin: 0 }}>Filter Records</h2>
           <div className="action-row">
-            <button type="button" className="btn btn-light" onClick={exportSalesCsv} disabled={loading || filteredSales.length === 0}>
+            <button type="button" className="btn btn-outline" onClick={exportSalesCsv} disabled={loading || filteredSales.length === 0} style={{ padding: '0.4rem 0.8rem', fontSize: '0.875rem' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '0.25rem' }}>
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
               Export CSV
             </button>
-            <button type="button" className="btn btn-light" onClick={loadSales} disabled={loading}>
+            <button type="button" className="btn btn-light" onClick={loadSales} disabled={loading} style={{ padding: '0.4rem 0.8rem', fontSize: '0.875rem' }}>
               {loading ? 'Refreshing...' : 'Refresh'}
             </button>
           </div>
         </div>
 
-        <div className="history-filters">
+        <div className="history-filters" style={{ marginTop: '1rem' }}>
           <label>
             Payment Method
-            <select value={paymentFilter} onChange={(event) => setPaymentFilter(event.target.value as 'all' | 'cash' | 'upi' | 'card')}>
-              <option value="all">all</option>
-              <option value="cash">cash</option>
-              <option value="upi">upi</option>
-              <option value="card">card</option>
+            <select value={paymentFilter} onChange={(event) => setPaymentFilter(event.target.value as 'all' | 'cash' | 'upi' | 'card')} style={{ textTransform: 'capitalize' }}>
+              <option value="all">All Methods</option>
+              <option value="cash">Cash</option>
+              <option value="upi">UPI</option>
+              <option value="card">Card</option>
             </select>
           </label>
 
@@ -266,48 +271,54 @@ function SalesHistoryPage() {
         </div>
       </section>
 
-      {error && <p className="error-text">{error}</p>}
+      {error && <p className="error-text" style={{ padding: '1rem', background: '#fef2f2', borderRadius: '8px', border: '1px solid #fee2e2', marginBottom: '1.5rem' }}>{error}</p>}
 
       <section className="panel">
         <div className="table-container mobile-stack-table">
           <table>
             <thead>
               <tr>
-                <th>Invoice</th>
-                <th>Date</th>
-                <th>Payment Method</th>
-                <th>Total Amount</th>
+                <th>Invoice Info</th>
+                <th>Payment</th>
+                <th>Financials</th>
                 <th>Created By</th>
-                <th>Profit</th>
-                <th>Margin</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th style={{ textAlign: 'center' }}>Status</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {paginatedSales.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="muted">
-                    No sales found for selected filters.
+                  <td colSpan={6} className="muted" style={{ textAlign: 'center', padding: '3rem' }}>
+                    No sales found matching your filters.
                   </td>
                 </tr>
               ) : (
                 paginatedSales.map((sale) => (
                   <tr key={sale._id}>
-                    <td data-label="Invoice">{sale.invoiceNumber}</td>
-                    <td data-label="Date">{new Date(sale.createdAt).toLocaleString()}</td>
-                    <td data-label="Payment">{sale.paymentMethod}</td>
-                    <td data-label="Total">₹{sale.grandTotal.toFixed(2)}</td>
-                    <td data-label="Created By">{createdByName(sale.createdBy)}</td>
-                    <td data-label="Profit">₹{(sale.grossProfit || 0).toFixed(2)}</td>
-                    <td data-label="Margin">{(sale.margin || 0).toFixed(2)}%</td>
-                    <td data-label="Status"><span className="status-pill">completed</span></td>
-                    <td data-label="Actions">
-                      <div className="action-row">
-                        <button type="button" className="btn btn-light" onClick={() => setSelectedSale(sale)}>
+                    <td data-label="Invoice Info">
+                      <div style={{ fontWeight: 600 }}>{sale.invoiceNumber}</div>
+                      <div className="muted" style={{ fontSize: '0.75rem' }}>{new Date(sale.createdAt).toLocaleString()}</div>
+                    </td>
+                    <td data-label="Payment">
+                      <span className="status-pill" style={{ background: '#f8fafc', color: '#475569', textTransform: 'capitalize' }}>
+                        {sale.paymentMethod}
+                      </span>
+                    </td>
+                    <td data-label="Financials">
+                      <div style={{ fontWeight: 700 }}>₹{sale.grandTotal.toFixed(0)}</div>
+                      <div className="muted" style={{ fontSize: '0.75rem' }}>Profit: ₹{(sale.grossProfit || 0).toFixed(0)} ({(sale.margin || 0).toFixed(1)}%)</div>
+                    </td>
+                    <td data-label="Created By" className="muted" style={{ fontSize: '0.875rem' }}>{createdByName(sale.createdBy)}</td>
+                    <td data-label="Status" style={{ textAlign: 'center' }}>
+                      <span className="status-pill status-active" style={{ fontSize: '0.7rem' }}>Completed</span>
+                    </td>
+                    <td data-label="Actions" style={{ textAlign: 'right' }}>
+                      <div className="action-row" style={{ justifyContent: 'flex-end' }}>
+                        <button type="button" className="btn btn-outline" onClick={() => setSelectedSale(sale)} style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem' }}>
                           Details
                         </button>
-                        <button type="button" className="btn btn-primary" onClick={() => openInvoice(sale._id)}>
+                        <button type="button" className="btn btn-primary" onClick={() => openInvoice(sale._id)} style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem' }}>
                           Invoice
                         </button>
                       </div>
@@ -319,13 +330,13 @@ function SalesHistoryPage() {
           </table>
         </div>
 
-        <div className="pagination-row">
-          <p className="muted">Page {page} of {totalPages}</p>
+        <div className="pagination-row" style={{ padding: '1rem 0 0 0', borderTop: '1px solid #f1f5f9' }}>
+          <p className="muted" style={{ margin: 0, fontWeight: 500, fontSize: '0.875rem' }}>Page {page} of {totalPages}</p>
           <div className="action-row">
-            <button type="button" className="btn btn-light" onClick={() => setPage((prev) => Math.max(prev - 1, 1))} disabled={page <= 1}>
+            <button type="button" className="btn btn-outline" onClick={() => setPage((prev) => Math.max(prev - 1, 1))} disabled={page <= 1} style={{ padding: '0.4rem 0.8rem' }}>
               Previous
             </button>
-            <button type="button" className="btn btn-light" onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))} disabled={page >= totalPages}>
+            <button type="button" className="btn btn-outline" onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))} disabled={page >= totalPages} style={{ padding: '0.4rem 0.8rem' }}>
               Next
             </button>
           </div>
