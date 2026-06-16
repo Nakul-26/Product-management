@@ -79,78 +79,102 @@ function ExpensesPage() {
   };
 
   return (
-    <main className="app">
-      <header>
+    <div className="expenses-page-wrapper">
+      <header style={{ marginBottom: '2rem' }}>
         <h1>Expenses</h1>
-        <p>Record operating costs and convert gross profit into net profit on dashboard analytics.</p>
+        <p>Track your operational costs to calculate accurate net profit.</p>
       </header>
 
-      {error && <p className="error-text">{error}</p>}
-      {notice && <p className="success-text">{notice}</p>}
+      {error && <p className="error-text" style={{ padding: '1rem', background: '#fef2f2', borderRadius: '8px', border: '1px solid #fee2e2', marginBottom: '1.5rem' }}>{error}</p>}
+      {notice && <p className="success-text" style={{ padding: '1rem', background: '#f0fdf4', borderRadius: '8px', border: '1px solid #dcfce7', marginBottom: '1.5rem' }}>{notice}</p>}
 
-      <section className="purchases-layout">
-        <article className="panel">
-          <h2>Add Expense</h2>
-          <form className="form-grid" onSubmit={submitExpense}>
+      <section className="purchases-layout" style={{ gridTemplateColumns: '400px 1fr' }}>
+        <article className="panel" style={{ height: 'fit-content' }}>
+          <h2 style={{ fontSize: '1.1rem', marginBottom: '1.5rem' }}>Record New Expense</h2>
+          <form className="login-form" onSubmit={submitExpense} style={{ gap: '1rem' }}>
             <label>
-              Title *
-              <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Shop rent, electricity bill, salary, etc." required />
+              Expense Title *
+              <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="e.g. Monthly Rent" required />
             </label>
-            <label>
-              Category
-              <select value={category} onChange={(event) => setCategory(event.target.value as ExpenseCategory)}>
-                {categories.map((entry) => (
-                  <option key={entry} value={entry}>{entry}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Amount *
-              <input type="number" min={0} step="0.01" value={amount} onChange={(event) => setAmount(event.target.value)} required />
-            </label>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <label>
+                Category
+                <select value={category} onChange={(event) => setCategory(event.target.value as ExpenseCategory)} style={{ textTransform: 'capitalize' }}>
+                  {categories.map((entry) => (
+                    <option key={entry} value={entry}>{entry}</option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Amount (₹) *
+                <input type="number" min={0} step="0.01" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0.00" required />
+              </label>
+            </div>
+
             <label>
               Expense Date
               <input type="date" value={expenseDate} onChange={(event) => setExpenseDate(event.target.value)} />
             </label>
-            <label className="full-width">
+            
+            <label>
               Notes
-              <textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Optional memo" />
+              <textarea 
+                value={notes} 
+                onChange={(event) => setNotes(event.target.value)} 
+                placeholder="Optional memo..." 
+                style={{ minHeight: '80px' }}
+              />
             </label>
-            <div className="form-actions full-width">
-              <button type="submit" className="btn btn-primary" disabled={loading}>{loading ? 'Saving...' : 'Save Expense'}</button>
-            </div>
+
+            <button type="submit" className="btn btn-primary" disabled={loading} style={{ marginTop: '0.5rem', padding: '0.875rem' }}>
+              {loading ? 'Processing...' : 'Save Expense'}
+            </button>
           </form>
         </article>
 
         <article className="panel">
           <div className="panel-header">
-            <h2>Expense History</h2>
-            <button type="button" className="btn btn-light" onClick={loadExpenses} disabled={loading}>Refresh</button>
+            <h2 style={{ fontSize: '1.1rem', margin: 0 }}>Expense Log</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div style={{ textAlign: 'right' }}>
+                <div className="muted" style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase' }}>Total Expenses</div>
+                <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-danger)' }}>₹{totals.toFixed(0)}</div>
+              </div>
+              <button type="button" className="btn btn-light" onClick={loadExpenses} disabled={loading} style={{ padding: '0.4rem 0.8rem', fontSize: '0.875rem' }}>Refresh</button>
+            </div>
           </div>
-          <p className="muted"><strong>Total (latest records):</strong> ₹{totals.toFixed(2)}</p>
 
-          <div className="table-container mobile-stack-table">
+          <div className="table-container mobile-stack-table" style={{ marginTop: '1.5rem' }}>
             <table>
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Title</th>
+                  <th>Details</th>
                   <th>Category</th>
-                  <th>Amount</th>
+                  <th style={{ textAlign: 'right' }}>Amount</th>
                 </tr>
               </thead>
               <tbody>
                 {expenses.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="muted">No expenses recorded yet.</td>
+                    <td colSpan={3} className="muted" style={{ textAlign: 'center', padding: '3rem' }}>No expenses recorded yet.</td>
                   </tr>
                 ) : (
                   expenses.map((expense) => (
                     <tr key={expense._id}>
-                      <td data-label="Date">{new Date(expense.expenseDate || expense.createdAt || '').toLocaleDateString()}</td>
-                      <td data-label="Title">{expense.title}</td>
-                      <td data-label="Category">{expense.category}</td>
-                      <td data-label="Amount">₹{expense.amount.toFixed(2)}</td>
+                      <td data-label="Details">
+                        <div style={{ fontWeight: 600 }}>{expense.title}</div>
+                        <div className="muted" style={{ fontSize: '0.75rem' }}>{new Date(expense.expenseDate || expense.createdAt || '').toLocaleDateString()}</div>
+                        {expense.notes && <div className="muted" style={{ fontSize: '0.8rem', marginTop: '0.25rem', fontStyle: 'italic' }}>"{expense.notes}"</div>}
+                      </td>
+                      <td data-label="Category">
+                        <span className="status-pill" style={{ background: '#fef2f2', color: '#991b1b', textTransform: 'capitalize', fontSize: '0.75rem' }}>
+                          {expense.category}
+                        </span>
+                      </td>
+                      <td data-label="Amount" style={{ textAlign: 'right' }}>
+                        <div style={{ fontWeight: 700, fontSize: '1rem' }}>₹{expense.amount.toFixed(0)}</div>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -159,7 +183,7 @@ function ExpensesPage() {
           </div>
         </article>
       </section>
-    </main>
+    </div>
   );
 }
 

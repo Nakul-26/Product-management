@@ -99,32 +99,39 @@ function SalesPage() {
   };
 
   return (
-    <main className="app">
-      <header>
+    <div className="sales-container-wrapper">
+      <header style={{ marginBottom: '2rem' }}>
         <h1>Sales POS</h1>
-        <p>Fast billing with real-time cart totals.</p>
+        <p>Real-time billing with automated inventory sync.</p>
       </header>
 
-      {error && <p className="error-text">{error}</p>}
-      {notice && <p className="success-text">{notice}</p>}
+      {error && <p className="error-text" style={{ padding: '1rem', background: '#fef2f2', borderRadius: '8px', border: '1px solid #fee2e2' }}>{error}</p>}
+      {notice && <p className="success-text" style={{ padding: '1rem', background: '#f0fdf4', borderRadius: '8px', border: '1px solid #dcfce7' }}>{notice}</p>}
 
       <section className="sales-container">
         <article className="panel">
           <div className="panel-header">
-            <h2>Products</h2>
-            <button type="button" className="btn btn-light" onClick={fetchProducts} disabled={loading}>
+            <h2 style={{ fontSize: '1.1rem', margin: 0 }}>Select Products</h2>
+            <button type="button" className="btn btn-light" onClick={fetchProducts} disabled={loading} style={{ padding: '0.4rem 0.8rem', fontSize: '0.875rem' }}>
               Refresh
             </button>
           </div>
 
-          <input
-            className="sales-search"
-            placeholder="Search by name, SKU, barcode"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
+          <div style={{ position: 'relative', margin: '1rem 0' }}>
+            <input
+              className="sales-search"
+              placeholder="Search by name, SKU, or barcode..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              style={{ paddingLeft: '2.5rem', width: '100%', borderRadius: '10px' }}
+            />
+            <svg style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-muted)' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
 
-          <div className="product-grid">
+          <div className="product-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1rem' }}>
             {filteredProducts.map((product) => (
               <button
                 key={product._id}
@@ -132,44 +139,79 @@ function SalesPage() {
                 type="button"
                 onClick={() => addToCart(product)}
                 disabled={product.stock <= 0}
+                style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'flex-start',
+                  border: '1px solid #e2e8f0',
+                  padding: '1rem',
+                  borderRadius: '12px',
+                  background: 'white',
+                  textAlign: 'left',
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer'
+                }}
               >
-                <strong>{product.name}</strong>
-                <span>SKU: {product.sku}</span>
-                <span>₹{product.price.toFixed(2)}</span>
-                <span className={product.stock <= product.lowStockThreshold ? 'warning' : 'muted'}>
-                  Stock: {product.stock}
-                </span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)', fontWeight: 600, textTransform: 'uppercase' }}>{product.sku}</span>
+                <strong style={{ fontSize: '1rem', margin: '0.25rem 0' }}>{product.name}</strong>
+                <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                  <span style={{ fontWeight: 700, color: 'var(--color-primary)' }}>₹{product.price.toFixed(0)}</span>
+                  <span className={`status-pill ${product.stock <= product.lowStockThreshold ? 'status-inactive' : 'status-active'}`} style={{ fontSize: '0.7rem' }}>
+                    Stock: {product.stock}
+                  </span>
+                </div>
               </button>
             ))}
 
-            {!loading && filteredProducts.length === 0 && <p className="muted">No matching products found.</p>}
+            {!loading && filteredProducts.length === 0 && (
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '3rem' }}>
+                <p className="muted">No products found matching your search.</p>
+              </div>
+            )}
           </div>
         </article>
 
-        <aside className="panel sales-cart-panel">
-          <h2>Cart & Billing</h2>
+        <aside className="panel sales-cart-panel" style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+          <h2 style={{ fontSize: '1.1rem', marginBottom: '1.5rem' }}>Current Order</h2>
 
-          <div className="cart-list">
+          <div className="cart-list" style={{ minHeight: '120px' }}>
             {cart.length === 0 ? (
-              <p className="muted">No items in cart.</p>
+              <div style={{ textAlign: 'center', padding: '2rem 0', color: 'var(--color-muted)' }}>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" style={{ opacity: 0.3, marginBottom: '1rem' }}>
+                  <circle cx="9" cy="21" r="1"></circle>
+                  <circle cx="20" cy="21" r="1"></circle>
+                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+                <p>Your cart is empty</p>
+              </div>
             ) : (
               cart.map((item) => (
-                <div key={item.product._id} className="cart-item">
-                  <div>
+                <div key={item.product._id} className="cart-item" style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '0.8rem', marginBottom: '0.75rem', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                     <strong>{item.product.name}</strong>
-                    <p className="muted">₹{item.product.price.toFixed(2)} each</p>
+                    <strong>₹{(item.product.price * item.quantity).toFixed(0)}</strong>
                   </div>
 
-                  <div className="cart-controls">
+                  <div className="cart-controls" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <input
                       type="number"
                       min={1}
                       max={item.product.stock}
                       value={item.quantity}
                       onChange={(event) => updateQuantity(item.product._id, Number(event.target.value || 1))}
+                      style={{ width: '60px', padding: '0.4rem' }}
                     />
-                    <button type="button" className="btn btn-danger" onClick={() => removeFromCart(item.product._id)}>
-                      Remove
+                    <span style={{ fontSize: '0.8rem', color: 'var(--color-muted)' }}>× ₹{item.product.price.toFixed(0)}</span>
+                    <button 
+                      type="button" 
+                      className="btn btn-light" 
+                      onClick={() => removeFromCart(item.product._id)}
+                      style={{ marginLeft: 'auto', padding: '0.4rem', color: 'var(--color-danger)', background: 'transparent' }}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
                     </button>
                   </div>
                 </div>
@@ -177,50 +219,68 @@ function SalesPage() {
             )}
           </div>
 
-          <div className="bill-form">
-            <label>
-              Discount
-              <input type="number" min={0} step="0.01" value={discount} onChange={(event) => setDiscount(event.target.value)} />
+          <div className="bill-form" style={{ marginTop: '1.5rem', borderTop: '1px solid #e2e8f0', paddingTop: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <label>
+                Discount
+                <input type="number" min={0} step="1" value={discount} onChange={(event) => setDiscount(event.target.value)} />
+              </label>
+
+              <label>
+                Tax (GST %)
+                <input type="number" min={0} step="1" value={gstRate} onChange={(event) => setGstRate(event.target.value)} />
+              </label>
+            </div>
+
+            <label style={{ marginTop: '0.75rem' }}>
+              Customer Details
+              <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '0.5rem' }}>
+                <input placeholder="Name" value={customerName} onChange={(event) => setCustomerName(event.target.value)} />
+                <input placeholder="Phone" value={customerPhone} onChange={(event) => setCustomerPhone(event.target.value)} />
+              </div>
             </label>
 
-            <label>
-              GST %
-              <input type="number" min={0} step="0.01" value={gstRate} onChange={(event) => setGstRate(event.target.value)} />
-            </label>
-
-            <label>
-              Customer Name
-              <input value={customerName} onChange={(event) => setCustomerName(event.target.value)} />
-            </label>
-
-            <label>
-              Customer Phone
-              <input value={customerPhone} onChange={(event) => setCustomerPhone(event.target.value)} />
-            </label>
-
-            <label>
+            <label style={{ marginTop: '0.75rem' }}>
               Payment Method
               <select value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value as 'cash' | 'upi' | 'card')}>
-                <option value="cash">cash</option>
-                <option value="upi">upi</option>
-                <option value="card">card</option>
+                <option value="cash">Cash</option>
+                <option value="upi">UPI</option>
+                <option value="card">Card</option>
               </select>
             </label>
           </div>
 
-          <div className="sale-totals">
-            <p>Subtotal: ₹{subTotal.toFixed(2)}</p>
-            <p>Discount: ₹{discountAmount.toFixed(2)}</p>
-            <p>GST: ₹{gstAmount.toFixed(2)}</p>
-            <h3>Total: ₹{grandTotal.toFixed(2)}</h3>
+          <div className="sale-totals" style={{ marginTop: '1.5rem', padding: '1rem', background: 'white', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: 'var(--color-muted)', marginBottom: '0.25rem' }}>
+              <span>Subtotal</span>
+              <span>₹{subTotal.toFixed(0)}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: 'var(--color-danger)', marginBottom: '0.25rem' }}>
+              <span>Discount</span>
+              <span>-₹{discountAmount.toFixed(0)}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: 'var(--color-muted)', marginBottom: '0.75rem' }}>
+              <span>Tax ({gstRate}%)</span>
+              <span>₹{gstAmount.toFixed(0)}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.25rem', fontWeight: 800, borderTop: '1px dashed #e2e8f0', paddingTop: '0.75rem' }}>
+              <span>Total</span>
+              <span>₹{grandTotal.toFixed(0)}</span>
+            </div>
           </div>
 
-          <button type="button" className="btn btn-primary complete-sale-btn" onClick={completeSale} disabled={loading || cart.length === 0}>
-            {loading ? 'Processing...' : 'Complete Sale'}
+          <button 
+            type="button" 
+            className="btn btn-primary complete-sale-btn" 
+            onClick={completeSale} 
+            disabled={loading || cart.length === 0}
+            style={{ marginTop: '1.5rem', width: '100%', padding: '1rem', fontSize: '1.1rem' }}
+          >
+            {loading ? 'Processing...' : 'Generate Bill'}
           </button>
         </aside>
       </section>
-    </main>
+    </div>
   );
 }
 
