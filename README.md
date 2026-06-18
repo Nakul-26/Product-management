@@ -4,6 +4,10 @@ A comprehensive, full-stack Retail Enterprise Resource Planning (ERP) applicatio
 
 **🌐 Live Demo:** [https://product-management-c0p.pages.dev](https://product-management-c0p.pages.dev)
 
+**Demo Credentials:**
+*   **Admin:** `admin@example.com` / `password123`
+*   **Staff:** `staff@example.com` / `password123`
+
 ## 🚀 Features
 
 *   **Dashboard Analytics:** Real-time metrics including Total Revenue, COGS (Cost of Goods Sold), Gross/Net Profit, and low stock alerts. Features a visual revenue chart and a table of top profitable products.
@@ -53,10 +57,6 @@ To populate the database with demo users, categories, and products:
 ```bash
 npx ts-node src/scripts/seed.ts
 ```
-
-*Demo Credentials created:*
-*   Admin: `admin@example.com` / `password123`
-*   Staff: `staff@example.com` / `password123`
 
 **Start Backend Server:**
 ```bash

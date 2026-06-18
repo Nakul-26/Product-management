@@ -67,7 +67,7 @@ function LoginPage() {
               type="email" 
               value={email} 
               onChange={(event) => setEmail(event.target.value)} 
-              placeholder="admin@example.com"
+              placeholder="Email address"
               required 
               style={{ marginTop: '0.5rem' }}
             />
@@ -114,11 +114,6 @@ function LoginPage() {
           </button>
         </form>
 
-        <div style={{ marginTop: '2rem', textAlign: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '1.5rem' }}>
-          <p style={{ fontSize: '0.875rem', color: 'var(--color-muted)' }}>
-            Demo: admin@example.com / password123
-          </p>
-        </div>
       </section>
     </main>
   );

@@ -4,10 +4,13 @@ import { Payment } from '../models/Payment';
 import { Product } from '../models/Product';
 
 export const getDashboard = async (_req: Request, res: Response) => {
-  const [products, lowStock, pendingPayments, pendingDeliveries, completedRevenue] = await Promise.all([
+  const [products, lowStock, pendingPaymentsAgg, pendingDeliveries, completedRevenue] = await Promise.all([
     Product.countDocuments(),
     Product.countDocuments({ $expr: { $lte: ['$stock', '$lowStockThreshold'] }, status: 'active' }),
-    Payment.find({ paymentStatus: 'pending' }),
+    Payment.aggregate([
+      { $match: { paymentStatus: 'pending' } },
+      { $group: { _id: null, count: { $sum: 1 }, total: { $sum: '$amount' } } }
+    ]),
     Delivery.countDocuments({ deliveryStatus: 'pending' }),
     Payment.aggregate([
       { $match: { paymentStatus: 'completed' } },
@@ -15,12 +18,13 @@ export const getDashboard = async (_req: Request, res: Response) => {
     ])
   ]);
 
-  const pendingPaymentsAmount = pendingPayments.reduce((sum, item) => sum + item.amount, 0);
+  const pendingPaymentsAmount = pendingPaymentsAgg[0]?.total ?? 0;
+  const pendingPaymentsCount = pendingPaymentsAgg[0]?.count ?? 0;
 
   res.json({
     products,
     lowStock,
-    pendingPayments: pendingPayments.length,
+    pendingPayments: pendingPaymentsCount,
     pendingPaymentsAmount,
     pendingDeliveries,
     totalRevenue: completedRevenue[0]?.total ?? 0
