@@ -383,6 +383,11 @@ tr:hover td { background-color: #fbfdff; }
   color: #334155;
 }
 
+.history-filters input, .history-filters select {
+  min-height: 48px;
+  border-radius: var(--radius-md) !important;
+}
+
 /* Login Page */
 .login-page {
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
