@@ -384,7 +384,7 @@ tr:hover td { background-color: #fbfdff; }
 }
 
 .history-filters input, .history-filters select {
-  min-height: 48px;
+  min-height: 68px;
   border-radius: var(--radius-md) !important;
 }
 
